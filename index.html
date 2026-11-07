@@ -1852,7 +1852,7 @@ Engine.prototype = {
   /* encontra as duas torres da ponte no relevo real (mapa de alturas em volta do centro informado) */
   detectBridge: function (center) {
     if (!this.tiles || !this.frame) return null;
-    var F = this.frame, c = F.fromGeo(center.lat, center.lon, F.h), R = 280, cs = 2, n = Math.ceil(2 * R / cs), H = new Float32Array(n * n).fill(-1e9), x0 = c[0] - R, z0 = c[2] - R, cnt = 0;
+    var F = this.frame, c = F.fromGeo(center.lat, center.lon, F.h), R = 460, cs = 2, n = Math.ceil(2 * R / cs), H = new Float32Array(n * n).fill(-1e9), x0 = c[0] - R, z0 = c[2] - R, cnt = 0;
     this.tiles.each(function (p) {
       var m = p.site32, P = p.pos, I = p.index, nv = P.length / 3, X = new Float32Array(nv), Y = new Float32Array(nv), Z = new Float32Array(nv);
       for (var v = 0; v < nv; v++) { var px = P[v * 3], py = P[v * 3 + 1], pz = P[v * 3 + 2]; X[v] = m[0] * px + m[4] * py + m[8] * pz + m[12]; Y[v] = m[1] * px + m[5] * py + m[9] * pz + m[13]; Z[v] = m[2] * px + m[6] * py + m[10] * pz + m[14]; }
@@ -1865,22 +1865,28 @@ Engine.prototype = {
         for (var j = j0; j <= j1; j++) for (var i = i0; i <= i1; i++) { var k = j * n + i; if (hy > H[k]) { if (H[k] < -1e8) cnt++; H[k] = hy; } }
       }
     });
-    if (cnt < n * n * 0.4) return null;
+    if (cnt < n * n * 0.25) return null;
     var vals = []; for (var q = 0; q < H.length; q += 7) if (H[q] > -1e8) vals.push(H[q]); vals.sort(function (a, b) { return a - b; });
     var sea = vals[Math.floor(vals.length * 0.15)];
     function at(x, z, r) { var ci = Math.floor((x - x0) / cs), cj = Math.floor((z - z0) / cs), best = -1e9, bi = -1; for (var j = cj - r; j <= cj + r; j++) for (var i = ci - r; i <= ci + r; i++) { if (i < 0 || j < 0 || i >= n || j >= n) continue; var v = H[j * n + i]; if (v > best) { best = v; bi = j * n + i; } } return [best, bi]; }
+    /* critérios: duas torres de altura parecida, ~340 m entre elas, e um tabuleiro contínuo e elevado (vão central) entre as duas */
     var best = null;
     for (var th = 0; th < 180; th += 0.5) {
       var ux = Math.sin(th * PI / 180), uz = Math.cos(th * PI / 180);
-      for (var s = -40; s <= 40; s += 5) for (var half = 158; half <= 182; half += 4) {
-        var h1 = at(c[0] + ux * (s - half), c[2] + uz * (s - half), 3)[0], h2 = at(c[0] + ux * (s + half), c[2] + uz * (s + half), 3)[0], sc = Math.min(h1, h2);
-        if (!best || sc > best.sc) best = { sc: sc, th: th, s: s, half: half };
+      for (var s = -260; s <= 260; s += 5) for (var half = 164; half <= 176; half += 6) {
+        var h1 = at(c[0] + ux * (s - half), c[2] + uz * (s - half), 3)[0]; if (h1 - sea < 45) continue;
+        var h2 = at(c[0] + ux * (s + half), c[2] + uz * (s + half), 3)[0]; if (h2 - sea < 45 || Math.abs(h1 - h2) > 12) continue;
+        var tmin = Math.min(h1, h2), ok = 0, dmax = -1e9, dmin = 1e9;
+        for (var q = 1; q <= 7; q++) { var fq = -half + 2 * half * q / 8, hd = at(c[0] + ux * (s + fq), c[2] + uz * (s + fq), 2)[0] - sea; if (hd > 28 && hd < 66) ok++; if (hd > dmax) dmax = hd; if (hd < dmin) dmin = hd; }
+        if (ok < 6 || dmax > tmin - sea - 10 || dmax - dmin > 26) continue;
+        var sc = tmin - sea + ok * 2 - Math.abs(h1 - h2) * 0.5 - Math.abs(s) * 0.01;
+        if (!best || sc > best.sc) best = { sc: sc, th: th, s: s, half: half, tmin: tmin };
       }
     }
     if (!best) return null;
-    var ux2 = Math.sin(best.th * PI / 180), uz2 = Math.cos(best.th * PI / 180), mid = at(c[0] + ux2 * best.s, c[2] + uz2 * best.s, 2)[0], tall = best.sc - sea;
-    if (tall < 40 || tall > 120 || mid > best.sc - 12) return null;
-    function top(px, pz) { var r = at(px, pz, 10), k = r[1], i = k % n, j = Math.floor(k / n); return [x0 + (i + 0.5) * cs, r[0], z0 + (j + 0.5) * cs]; }
+    var ux2 = Math.sin(best.th * PI / 180), uz2 = Math.cos(best.th * PI / 180), tall = best.tmin - sea;
+    if (tall < 45 || tall > 120) return null;
+    function top(px, pz) { var r = at(px, pz, 6), k = r[1], i = k % n, j = Math.floor(k / n); return [x0 + (i + 0.5) * cs, r[0], z0 + (j + 0.5) * cs]; }
     var T1 = top(c[0] + ux2 * (best.s - best.half), c[2] + uz2 * (best.s - best.half)), T2 = top(c[0] + ux2 * (best.s + best.half), c[2] + uz2 * (best.s + best.half));
     var g1 = F.toGeo(T1), g2 = F.toGeo(T2), gs = F.toGeo([c[0], sea, c[2]]);
     return { t1: { lat: g1.lat, lon: g1.lon, h: g1.h }, t2: { lat: g2.lat, lon: g2.lon, h: g2.h }, seaH: gs.h, tall: tall, auto: true };
@@ -1978,7 +1984,7 @@ if (!saved && old && old.site) saved = { site: old.site };
 var SITE = Object.assign({}, CFG.site || {}, saved && saved.site ? saved.site : {});
 var BRIDGE = Object.assign({}, CFG.bridge || {}, saved && saved.bridge ? saved.bridge : {});
 var BRIDGE_FIXED = !!(BRIDGE.t1 && BRIDGE.t2);
-if (!BRIDGE_FIXED) { try { var ab = JSON.parse(localStorage.getItem('maquete-ponte-v2') || 'null'); if (ab && ab.t1 && ab.t2 && Math.abs(ab.c[0] - BRIDGE.lat) < 1e-6 && Math.abs(ab.c[1] - BRIDGE.lon) < 1e-6) { BRIDGE.t1 = ab.t1; BRIDGE.t2 = ab.t2; BRIDGE.seaH = ab.seaH; BRIDGE.auto = true; } } catch (e) { } }
+if (!BRIDGE_FIXED) { try { var ab = JSON.parse(localStorage.getItem('maquete-ponte-v3') || 'null'); if (ab && ab.t1 && ab.t2 && Math.abs(ab.c[0] - BRIDGE.lat) < 1e-6 && Math.abs(ab.c[1] - BRIDGE.lon) < 1e-6) { BRIDGE.t1 = ab.t1; BRIDGE.t2 = ab.t2; BRIDGE.seaH = ab.seaH; BRIDGE.auto = true; } } catch (e) { } }
 if (Q.get('lat') && Q.get('lon')) { SITE.lat = parseFloat(Q.get('lat')); SITE.lon = parseFloat(Q.get('lon')); }
 if (Q.get('heading')) SITE.heading = parseFloat(Q.get('heading'));
 
@@ -2056,7 +2062,7 @@ function autoBridge(manual) {
     if (!r) return;
     clearInterval(bridgeTimer);
     BRIDGE.t1 = r.t1; BRIDGE.t2 = r.t2; BRIDGE.seaH = r.seaH; BRIDGE.auto = true; engine.setBridge(BRIDGE);
-    try { localStorage.setItem('maquete-ponte-v2', JSON.stringify({ c: [CFG.bridge.lat, CFG.bridge.lon], t1: r.t1, t2: r.t2, seaH: r.seaH })); } catch (e) { }
+    try { localStorage.setItem('maquete-ponte-v3', JSON.stringify({ c: [CFG.bridge.lat, CFG.bridge.lon], t1: r.t1, t2: r.t2, seaH: r.seaH })); } catch (e) { }
     if (manual) toast('Ponte localizada: as luzes agora seguem as torres reais.');
     render();
   }, 2000);
@@ -2348,7 +2354,7 @@ var ACT = {
   ground: function () { var y = engine.probeGround(); if (y == null) { toast('Ainda carregando o entorno em volta do terreno. Espere uns segundos e tente de novo.'); return; } SITE.h = (SITE.h || 0) + y; engine.setSite(SITE.lat, SITE.lon, SITE.h, SITE.heading); toast('Terreno encaixado (' + (y >= 0 ? '+' : '') + y.toFixed(1) + ' m).'); render(); },
   bridgeauto: function () { bridgeView(); toast('Procurando a ponte no mapa…', 0); setTimeout(function () { autoBridge(true); }, 2500); },
   calibsave: function () { SITE.grounded = true; try { localStorage.setItem('maquete-calib-v2', JSON.stringify({ site: SITE, bridge: BRIDGE.auto ? {} : BRIDGE })); toast('Ajuste salvo neste navegador.'); } catch (e) { toast('Não consegui salvar neste navegador.'); } },
-  calibreset: function () { try { localStorage.removeItem('maquete-calib'); localStorage.removeItem('maquete-calib-v2'); localStorage.removeItem('maquete-ponte-v2'); } catch (e) { } location.reload(); }
+  calibreset: function () { try { localStorage.removeItem('maquete-calib'); localStorage.removeItem('maquete-calib-v2'); localStorage.removeItem('maquete-ponte-v3'); } catch (e) { } location.reload(); }
 };
 document.addEventListener('click', function (e) {
   var t = e.target.closest('[data-act]'); if (!t || t.disabled) return;
