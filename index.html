@@ -186,6 +186,23 @@ a{color:#d7f25b}a:hover{color:#eaff8a}
   <div id="ajuste"></div>
   <div class="loading" id="loading"><div class="ld"><div class="spin" aria-hidden="true"></div><div class="h" style="font-size:24px;margin:0">Montando a maquete 3D</div><p class="p" id="loadmsg">Carregando torres, lazer e o entorno real.</p></div></div>
 </div>
+<script>
+/* diagnóstico: mostra na tela de carregamento qualquer erro ou arquivo que não abriu */
+(function(){
+  var msgs=[];
+  function show(t){ msgs.push(t); var el=document.getElementById('loadmsg'); if(el){ el.style.color='#ffb4a8'; el.innerHTML=msgs.map(function(m){return String(m).replace(/</g,'&lt;');}).join('<br>'); } }
+  window.__maqueteErro=show;
+  window.addEventListener('error',function(e){
+    var t=e.target;
+    if(t&&t!==window&&(t.tagName==='SCRIPT'||t.tagName==='LINK')){ var u=t.src||t.href||''; if(/fonts\.g/.test(u))return; show('Arquivo não encontrado: '+u.split('/').pop()+' (confira se está na mesma pasta do index.html)'); }
+    else show('Erro: '+(e.message||e)+(e.filename?' em '+e.filename.split('/').pop()+':'+e.lineno:''));
+  },true);
+  setTimeout(function(){
+    var l=document.getElementById('loading'); if(!l||l.style.display==='none')return;
+    show('Diagnóstico: config.js '+(window.MAQUETE_CONFIG?'ok':'NÃO carregou')+' · engine.js '+(window.VistaEngine?'ok':'NÃO carregou')+' · app.js '+(window.__maqueteApp?'ok':'NÃO carregou')+' · WebGL2 '+(!!document.createElement('canvas').getContext('webgl2')?'ok':'indisponível'));
+  },12000);
+})();
+</script>
 <script src="config.js"></script>
 <script src="engine.js"></script>
 <script src="app.js"></script>
