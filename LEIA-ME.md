@@ -1,20 +1,12 @@
-# Vértice Residence — maquete 3D (site)
+# Vértice Residence — site cinematográfico + maquete 3D
 
-Site estático em arquivo único: `index.html` + pasta `assets` (apartamento decorado).
-A configuração (chave do Google, terreno, ponte, WhatsApp) fica no começo do `index.html`, no bloco `config.js`.
+Estrutura (tudo na raiz do repositório):
+- index.html            → site cinematográfico (vídeos)
+- maquete/index.html    → maquete 3D interativa (unidades, decorado, proposta)
+- maquete/assets/apartamento.glb
+- assets/               → (opcional) coloque aqui os vídeos baixados da Higgsfield com estes nomes:
+  abertura.mp4, orbita.mp4, noite.mp4, andar.mp4, lazer.mp4
+  Se a pasta estiver vazia, o site usa os vídeos direto do link da Higgsfield.
 
-## Publicar (GitHub + Vercel)
-Na raiz do repositório devem ficar só `index.html`, `LEIA-ME.md` e a pasta `assets`.
-Na Vercel: Framework Preset "Other" e Root Directory vazio.
-
-## Segurança da chave
-Google Cloud → Credenciais → sua chave → Referenciadores HTTP: `https://SEU-DOMINIO.vercel.app/*`.
-
-## Ponte iluminada
-A posição das torres é detectada automaticamente no mapa real na primeira vez que a ponte aparece
-(e fica salva no navegador). Para refazer: abra com `?ajuste=1` → "Detectar a ponte automaticamente",
-ou "Voltar ao padrão" para limpar tudo.
-
-## Ajuste do terreno (`?ajuste=1`)
-1. Mover o terreno (clique no mapa) · 2. Girar a fachada · 3. Encaixar na altura do chão ·
-4. Detectar a ponte. Depois "Salvar neste navegador" e envie o texto da caixa para fixar no site.
+Vercel: Framework Preset "Other", Root Directory vazio.
+Chave do Google: adicione também https://SEU-DOMINIO.vercel.app/maquete/* nos referenciadores.
