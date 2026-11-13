@@ -65,6 +65,31 @@ html,body{margin:0;height:100%;background:#000;color:var(--ink);font-family:Inte
 .kv span:first-child{color:var(--mute)}
 .btn{display:flex;align-items:center;justify-content:center;height:46px;border-radius:999px;background:var(--lime);color:#121409;font-weight:600;font-size:14px;text-decoration:none;margin-top:14px}
 @media (max-width:760px){.ruler{left:10px;right:10px;top:auto;bottom:84px;transform:none;flex-direction:column-reverse;gap:8px}.ticks{flex-direction:row;overflow-x:auto;padding:6px}.tk{width:38px;flex:none}.finfo{width:auto;padding:14px}.big{font-size:56px}}
+/* unidades destacadas sobre a fachada */
+.units{position:absolute;inset:0;z-index:4;pointer-events:none;opacity:0;transition:opacity .35s}
+.units.show{opacity:1}
+.ubox{position:absolute;pointer-events:auto;cursor:pointer;border:2px solid var(--lime);border-radius:6px;background:rgba(215,242,91,.14);box-shadow:0 0 0 1px rgba(0,0,0,.2),0 0 28px rgba(215,242,91,.45),inset 0 0 30px rgba(215,242,91,.18);transition:background .2s,box-shadow .2s;padding:0}
+.ubox:hover{background:rgba(215,242,91,.26)}
+.ubox.sel{background:rgba(215,242,91,.34);box-shadow:0 0 0 3px rgba(215,242,91,.35),0 0 40px rgba(215,242,91,.7),inset 0 0 40px rgba(215,242,91,.3)}
+.ubox.sold{border:2px dashed rgba(255,255,255,.55);background:rgba(20,20,20,.38);box-shadow:none;cursor:not-allowed}
+.ubox .tag{position:absolute;left:10px;top:-15px;padding:5px 11px;border-radius:999px;background:var(--lime);color:#121409;font:700 12px Inter,sans-serif;white-space:nowrap;pointer-events:none}
+.ubox.sold .tag{background:#2a2b2a;color:#d8d8d2}
+.hint{position:absolute;right:clamp(14px,3vw,32px);top:84px;z-index:6;padding:9px 14px;border-radius:999px;font-size:12.5px}
+.btn2{display:flex;align-items:center;justify-content:center;height:42px;border-radius:999px;border:1px solid var(--line);color:var(--ink);font-weight:500;font-size:13.5px;text-decoration:none;margin-top:8px}
+@media (max-width:760px){
+ .finfo{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:4px 12px;padding:10px 12px;border-radius:16px}
+ .finfo .eyebrow{grid-column:1/4;font-size:10px}
+ .finfo .big{font-size:40px;grid-row:2}
+ .finfo .big span{font-size:15px}
+ .finfo>div:nth-of-type(3){margin:0!important;grid-row:2}
+ .finfo .kv{border:0;padding:1px 0;font-size:12.5px;white-space:nowrap}
+ .finfo .kv span:first-child{display:none}
+ .finfo .kv:nth-child(2) span:last-child{font-weight:700;color:var(--lime)}
+ .finfo .kv:nth-child(1),.finfo .kv:nth-child(3){display:none}
+ .finfo .btn{grid-row:2;margin:0;height:38px;padding:0 14px;font-size:12.5px}
+ .finfo .btn2{display:none!important}
+ .hint{top:76px;right:12px;font-size:11.5px}
+}
 /* lista do lazer */
 .side{position:absolute;right:clamp(14px,4vw,48px);bottom:96px;z-index:6;display:flex;flex-direction:column;gap:8px;max-width:330px}
 .side div{padding:12px 16px;border-radius:14px;font-size:13px}
@@ -111,6 +136,8 @@ html,body{margin:0;height:100%;background:#000;color:var(--ink);font-family:Inte
   <section class="layer" id="L-andar">
     <video id="v-andar" muted playsinline preload="auto" poster="assets/andar.jpg"><source src="assets/andar.mp4" type="video/mp4"></video>
     <div class="shade" style="background:linear-gradient(90deg,rgba(0,0,0,.55),rgba(0,0,0,0) 45%)"></div>
+    <div class="units" id="units"></div>
+    <div class="hint glass">Toque no apartamento destacado</div>
     <div class="ruler">
       <div class="ticks glass" id="ticks" role="group" aria-label="Andares"></div>
       <div class="finfo glass">
@@ -118,10 +145,12 @@ html,body{margin:0;height:100%;background:#000;color:var(--ink);font-family:Inte
         <div class="big"><b id="fnum">8</b><span>º andar</span></div>
         <div style="margin-top:10px">
           <div class="kv"><span>Altura</span><span id="falt">27 m</span></div>
-          <div class="kv"><span>Disponíveis</span><span id="fdisp">—</span></div>
-          <div class="kv"><span>A partir de</span><span id="fprice">—</span></div>
+          <div class="kv"><span>Unidade</span><span id="funit">—</span></div>
+          <div class="kv"><span>Planta</span><span id="fplan">—</span></div>
+          <div class="kv"><span>Valor</span><span id="fprice">—</span></div>
         </div>
-        <a class="btn" id="funits" href="maquete/">Ver unidades e decorado</a>
+        <a class="btn" id="funits" href="maquete/">Ver decorado em 3D</a>
+        <a class="btn2" id="fwa" href="#" target="_blank" rel="noopener">Tenho interesse nesta unidade</a>
       </div>
     </div>
   </section>
@@ -188,7 +217,7 @@ function go(next, from) {
   if (cur) { cur.style.transformOrigin = ox + '% ' + oy + '%'; cur.style.transform = zoomIn ? 'scale(2.4)' : zoomOut ? 'scale(1.12)' : 'none'; cur.classList.remove('on'); }
   nx.style.transformOrigin = ox + '% ' + oy + '%';
   requestAnimationFrame(function () { nx.classList.add('on'); nx.style.transform = 'none'; });
-  var prev = scene; scene = next;
+  var prev = scene; scene = next; if (prev === 'intro') V.intro.pause();
   setTimeout(function () { if (cur) { cur.style.transform = 'none'; } if (prev === 'lazer') V.lazer.pause(); if (prev === 'home' && next !== 'home') { V.dia.pause(); V.noite.pause(); } busy = false; }, 1250);
   $$('.dbtn[data-go]').forEach(function (b) { b.classList.toggle('on', b.dataset.go === next); });
   $('#dn').style.display = next === 'home' ? '' : 'none';
@@ -204,28 +233,58 @@ function setNight(n) {
 }
 
 /* escolha seu andar: o vídeo sobe pela fachada (cada quadro é uma imagem completa, por isso a busca é lisa) */
-var AV = { A: { 2: ['A-202'], 3: ['A-304'], 5: ['A-501'], 6: ['A-603'], 7: ['A-702'], 8: ['A-801'], 9: ['A-904'], 10: ['A-1002'], 11: ['A-1103'], 12: ['A-1201'], 13: ['A-1302'], 14: ['A-1404'], 15: ['A-1501'] }, B: { 1: ['B-101'], 3: ['B-302'], 5: ['B-501'], 6: ['B-604'], 8: ['B-802'], 9: ['B-903'], 10: ['B-1001'], 11: ['B-1102'], 12: ['B-1204'], 13: ['B-1301'], 14: ['B-1403'], 15: ['B-1502'] } };
-var cur_floor = 8, seekTarget = null, rafSeek = null;
+/* posição de cada apartamento no quadro do vídeo em que o andar fica em foco (frações da imagem 1280x720) */
+var BOX = {"1": [[0.3953, 0.6278, 0.6852, 0.7653], [0.8053, 0.6278, 1.0, 0.7653]], "2": [[0.4005, 0.3806, 0.6781, 0.5125], [0.7943, 0.3806, 1.0, 0.5125]], "3": [[0.4075, 0.4972, 0.682, 0.6278], [0.7973, 0.4972, 1.0, 0.6278]], "4": [[0.4113, 0.4431, 0.6828, 0.5722], [0.7971, 0.4431, 1.0, 0.5722]], "5": [[0.4075, 0.3861, 0.682, 0.5167], [0.7973, 0.3861, 1.0, 0.5167]], "6": [[0.4112, 0.4819, 0.6797, 0.6097], [0.793, 0.4819, 1.0, 0.6097]], "7": [[0.4166, 0.4153, 0.6789, 0.5403], [0.7902, 0.4153, 1.0, 0.5403]], "8": [[0.4219, 0.5083, 0.6781, 0.6306], [0.7875, 0.5083, 1.0, 0.6306]], "9": [[0.4241, 0.4569, 0.6773, 0.5778], [0.7857, 0.4569, 1.0, 0.5778]], "10": [[0.4333, 0.4111, 0.6773, 0.5278], [0.7828, 0.4111, 1.0, 0.5278]], "11": [[0.4371, 0.5194, 0.675, 0.6333], [0.7785, 0.5194, 1.0, 0.6333]], "12": [[0.4432, 0.4722, 0.6781, 0.5847], [0.7807, 0.4722, 1.0, 0.5847]], "13": [[0.4432, 0.5764, 0.6781, 0.6889], [0.7807, 0.5764, 1.0, 0.6889]], "14": [[0.4471, 0.2375, 0.6789, 0.3486], [0.7805, 0.2375, 1.0, 0.3486]], "15": [[0.444, 0.1917, 0.6789, 0.3042], [0.7814, 0.1917, 1.0, 0.3042]]};
+var PLAN = { '01': { t: '3 suítes · 128 m²', p: 1180000 }, '02': { t: '2 suítes · 94 m²', p: 890000 } };
+function sold(tw, f, u) { return ((f * 7 + (u === '01' ? 3 : 6) + (tw === 'B' ? 5 : 0)) % 4) === 0; }
+function code(tw, f, u) { return tw + '-' + f + u; }
+var cur_floor = 8, cur_unit = '01', seekTarget = null, rafSeek = null;
 function timeFor(f) { return 0.15 + (f - 1) / 14 * 6.4; }
 function buildTicks() {
   var t = $('#ticks'); t.innerHTML = '';
-  for (var f = 15; f >= 1; f--) { var b = document.createElement('button'); b.className = 'tk' + ((AV[tower][f] || []).length ? ' av' : '') + (f === cur_floor ? ' on' : ''); b.textContent = f; b.dataset.f = f; b.setAttribute('aria-label', f + 'º andar'); t.appendChild(b); }
+  for (var f = 15; f >= 1; f--) { var any = !sold(tower, f, '01') || !sold(tower, f, '02'); var b = document.createElement('button'); b.className = 'tk' + (any ? ' av' : '') + (f === cur_floor ? ' on' : ''); b.textContent = f; b.dataset.f = f; b.setAttribute('aria-label', f + 'º andar'); t.appendChild(b); }
 }
+function placeUnits() {
+  var box = $('#units'); box.innerHTML = '';
+  var W = innerWidth, H = innerHeight, s = Math.max(W / 1280, H / 720), ox = (W - 1280 * s) / 2, oy = (H - 720 * s) / 2;
+  ['01', '02'].forEach(function (u, i) {
+    var r = BOX[cur_floor][i], x0 = ox + r[0] * 1280 * s, y0 = oy + r[1] * 720 * s, x1 = Math.min(W - 4, ox + r[2] * 1280 * s), y1 = oy + r[3] * 720 * s;
+    if (x1 - x0 < 30) return;
+    var sd = sold(tower, cur_floor, u), b = document.createElement('button');
+    b.className = 'ubox' + (sd ? ' sold' : '') + (u === cur_unit && !sd ? ' sel' : ''); b.dataset.u = u;
+    b.style.left = x0 + 'px'; b.style.top = y0 + 'px'; b.style.width = (x1 - x0) + 'px'; b.style.height = (y1 - y0) + 'px';
+    b.innerHTML = '<span class="tag">' + code(tower, cur_floor, u) + (sd ? ' · vendido' : ' · disponível') + '</span>';
+    b.setAttribute('aria-label', 'Apartamento ' + code(tower, cur_floor, u) + (sd ? ', vendido' : ''));
+    box.appendChild(b);
+  });
+}
+function setUnit(u) {
+  if (sold(tower, cur_floor, u)) { var o = u === '01' ? '02' : '01'; if (!sold(tower, cur_floor, o)) u = o; }
+  cur_unit = u; var sd = sold(tower, cur_floor, u), c = code(tower, cur_floor, u);
+  $('#funit').textContent = sd ? 'Andar esgotado' : c;
+  $('#fplan').textContent = PLAN[u].t;
+  $('#fprice').textContent = sd ? '—' : 'R$ ' + (PLAN[u].p + cur_floor * 9500).toLocaleString('pt-BR');
+  $('#funits').href = 'maquete/' + (sd ? '' : '#' + c);
+  $('#fwa').href = 'https://wa.me/' + WHATS + '?text=' + encodeURIComponent('Olá! Tenho interesse no apartamento ' + c + ' do Vértice Residence.');
+  $('#fwa').style.display = sd ? 'none' : '';
+  $$('.ubox').forEach(function (b) { b.classList.toggle('sel', b.dataset.u === u && !b.classList.contains('sold')); });
+}
+$('#units').addEventListener('click', function (e) { var b = e.target.closest('.ubox'); if (b && !b.classList.contains('sold')) setUnit(b.dataset.u); });
+addEventListener('resize', function () { if (scene === 'andar' && seekTarget == null) placeUnits(); });
 function setFloor(f) {
   cur_floor = Math.max(1, Math.min(15, f));
   $$('.tk').forEach(function (b) { b.classList.toggle('on', +b.dataset.f === cur_floor); });
   $('#fnum').textContent = cur_floor; $('#falt').textContent = Math.round(cur_floor * 2.95 + 3) + ' m';
   $('#ftower').textContent = 'Torre ' + tower + ' · vista frente mar';
-  var av = AV[tower][cur_floor] || []; $('#fdisp').textContent = av.length ? av.join(', ') : 'Esgotado';
-  $('#fprice').textContent = 'R$ ' + (690000 + cur_floor * 9500).toLocaleString('pt-BR');
-  $('#funits').href = 'maquete/' + (av[0] ? '#' + av[0] : '');
+  $('#units').classList.remove('show');
+  setUnit(cur_unit);
   /* desliza o vídeo até o andar escolhido */
   seekTarget = timeFor(cur_floor); if (!rafSeek) rafSeek = requestAnimationFrame(seekStep);
 }
 function seekStep() {
   rafSeek = null; var v = V.andar; if (seekTarget == null) return;
   var d = seekTarget - v.currentTime;
-  if (Math.abs(d) < 0.03) { seekTarget = null; return; }
+  if (Math.abs(d) < 0.03) { v.currentTime = seekTarget; seekTarget = null; v.addEventListener('seeked', function on() { v.removeEventListener('seeked', on); if (seekTarget == null) { placeUnits(); setUnit(cur_unit); $('#units').classList.add('show'); } }); return; }
   if (!v.seeking) v.currentTime = v.currentTime + d * 0.16 + (d > 0 ? 0.01 : -0.01);
   rafSeek = requestAnimationFrame(seekStep);
 }
@@ -248,7 +307,7 @@ V.intro.addEventListener('timeupdate', function () {
   $('#ibar').style.width = (t / d * 100) + '%';
   titles.forEach(function (el) { var r = el.dataset.t.split('-'); el.classList.toggle('on', t >= +r[0] && t < +r[1]); });
 });
-V.intro.addEventListener('ended', function () { V.dia.currentTime = 0; go('home'); });
+V.intro.addEventListener('ended', function () { if (scene === 'intro') { V.dia.currentTime = 0; go('home'); } });
 function begin() {
   $('#loading').classList.add('done');
   scene = 'intro'; $('#L-intro').classList.add('on'); play(V.intro);
