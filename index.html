@@ -7,282 +7,259 @@
 <meta name="description" content="Vértice Residence (empreendimento fictício): duas torres na Beira-Mar Continental, de frente para o mar e a Ponte Hercílio Luz.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#07080a;--ink:#f4f3ee;--mute:#b9bdb3;--lime:#d7f25b;--glass:rgba(12,14,16,.58);--line:rgba(255,255,255,.14)}
+:root{--ink:#f4f3ee;--mute:#c4c8be;--lime:#d7f25b;--glass:rgba(10,12,14,.55);--line:rgba(255,255,255,.16)}
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-a{color:inherit}
-.disp{font-family:'Barlow Condensed',sans-serif;font-weight:800;letter-spacing:.01em;line-height:.92;text-transform:uppercase}
+html,body{margin:0;height:100%;background:#000;color:var(--ink);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+.disp{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;line-height:.92;letter-spacing:.01em}
 .eyebrow{font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--lime);font-weight:600}
 .glass{background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
-/* nav */
-.nav{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;gap:16px;padding:18px clamp(16px,4vw,40px);pointer-events:none}
-.nav>*{pointer-events:auto}
-.logo{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:24px;letter-spacing:.06em;margin-right:auto;text-shadow:0 2px 16px rgba(0,0,0,.5)}
-.logo small{display:block;font:500 10px Inter,sans-serif;letter-spacing:.24em;color:#e3e5dd}
-.nav a.pill{display:inline-flex;align-items:center;height:40px;padding:0 16px;border-radius:999px;text-decoration:none;font-size:13px;font-weight:500}
-.nav a.cta{background:var(--lime);color:#121409;font-weight:600}
-@media (max-width:760px){.nav .hide-m{display:none}}
-/* stage (sticky media) */
-.stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:#000}
-.stage video,.stage canvas,.stage img.poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
-.shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.45) 0%,rgba(0,0,0,0) 28%,rgba(0,0,0,0) 62%,rgba(0,0,0,.6) 100%);pointer-events:none}
-.cap{position:absolute;left:clamp(16px,6vw,72px);right:clamp(16px,6vw,72px);bottom:clamp(90px,14vh,150px);opacity:0;transform:translateY(24px);transition:opacity .6s,transform .6s;pointer-events:none;max-width:860px}
-.cap.on{opacity:1;transform:none}
-.cap h1,.cap h2{margin:10px 0 0;font-size:clamp(46px,8.5vw,128px)}
-.cap h2{font-size:clamp(36px,6vw,88px)}
-.cap p{font-size:clamp(15px,1.6vw,19px);color:#e8e9e2;max-width:560px;line-height:1.5;margin:14px 0 0;text-shadow:0 2px 12px rgba(0,0,0,.6)}
-.scrollhint{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#e9eae3;display:flex;flex-direction:column;align-items:center;gap:8px;opacity:.85}
-.scrollhint i{width:1px;height:38px;background:linear-gradient(#fff,transparent);animation:sh 1.6s infinite}
-@keyframes sh{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
-.progress{position:absolute;left:0;bottom:0;height:3px;background:var(--lime);width:0}
-/* orbit */
-.drag{cursor:grab;touch-action:pan-y}
-.drag:active{cursor:grabbing}
-.toolbar{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);display:flex;gap:4px;padding:5px;border-radius:999px;z-index:3}
-.tbtn{height:40px;padding:0 18px;border-radius:999px;border:0;background:transparent;color:var(--ink);font:500 13px Inter,sans-serif;cursor:pointer}
-.tbtn.on{background:var(--lime);color:#121409;font-weight:600}
-.badge{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:12px 18px;border-radius:999px;font-size:13px;pointer-events:none;transition:opacity .5s;display:flex;align-items:center;gap:10px}
-.badge svg{width:20px;height:20px}
-/* floor picker */
-.picker{position:absolute;right:clamp(16px,4vw,48px);top:50%;transform:translateY(-50%);width:min(320px,calc(100% - 32px));border-radius:22px;padding:20px;z-index:3}
-.picker .num{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:96px;line-height:.9;display:flex;align-items:flex-end;gap:6px}
-.picker .num span{font-size:22px;color:var(--mute);padding-bottom:12px}
-.picker input{width:100%;accent-color:var(--lime);margin:14px 0 6px;height:26px}
-.row{display:flex;gap:8px}
-.sq{flex:1;height:44px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--ink);font:600 18px Inter,sans-serif;cursor:pointer}
-.sq:hover{border-color:var(--lime)}
-.kv{display:flex;justify-content:space-between;font-size:13px;padding:9px 0;border-bottom:1px solid var(--line)}
+#app{position:fixed;inset:0;overflow:hidden}
+/* camadas de vídeo */
+.layer{position:absolute;inset:0;opacity:0;transition:opacity .9s ease,transform 1.2s cubic-bezier(.6,0,.2,1);pointer-events:none;will-change:opacity,transform}
+.layer.on{opacity:1;pointer-events:auto}
+.layer video,.layer img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.5) 0%,rgba(0,0,0,0) 26%,rgba(0,0,0,0) 64%,rgba(0,0,0,.55) 100%)}
+/* topo */
+.nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;gap:10px;padding:16px clamp(14px,3vw,32px)}
+.logo{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:24px;letter-spacing:.06em;margin-right:auto;cursor:pointer;text-shadow:0 2px 14px rgba(0,0,0,.5)}
+.logo small{display:block;font:500 10px Inter,sans-serif;letter-spacing:.26em;color:#e3e5dd}
+.pill{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px;border-radius:999px;font:500 13px Inter,sans-serif;color:var(--ink);text-decoration:none;cursor:pointer;border:1px solid var(--line)}
+.pill.cta{background:var(--lime);color:#121409;border-color:var(--lime);font-weight:600}
+.pill.on{border-color:var(--lime);color:var(--lime)}
+@media (max-width:760px){.nav .hm{display:none}}
+/* textos */
+.title{position:absolute;left:clamp(16px,5vw,64px);bottom:clamp(110px,15vh,170px);max-width:780px;pointer-events:none;opacity:0;transform:translateY(20px);transition:opacity .8s,transform .8s}
+.title.on{opacity:1;transform:none}
+.title h1,.title h2{margin:10px 0 0;font-size:clamp(44px,8vw,120px)}
+.title h2{font-size:clamp(36px,5.6vw,84px)}
+.title p{font-size:clamp(14px,1.5vw,18px);line-height:1.55;color:#ecede6;margin:12px 0 0;max-width:520px;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+/* pontos clicáveis sobre o vídeo */
+.hot{position:absolute;left:0;top:0;z-index:5;transform:translate(-50%,-50%);display:flex;align-items:center;gap:10px;cursor:pointer;border:0;background:none;color:var(--ink);padding:0;opacity:0;transition:opacity .5s}
+.layer.on .hot{opacity:1}
+.hot .dot{width:18px;height:18px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 6px rgba(215,242,91,.25),0 0 22px rgba(215,242,91,.6);animation:pulse 2s infinite;flex:none}
+.hot .lab{padding:9px 14px;border-radius:999px;font:600 13px Inter,sans-serif;white-space:nowrap;background:rgba(10,12,14,.72);border:1px solid var(--line);backdrop-filter:blur(10px);transition:background .2s,color .2s}
+.hot:hover .lab,.hot:focus-visible .lab{background:var(--lime);color:#121409}
+.hot small{display:block;font-weight:500;font-size:11px;color:var(--mute)}
+.hot:hover small{color:#2b3010}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 6px rgba(215,242,91,.25),0 0 22px rgba(215,242,91,.6)}50%{box-shadow:0 0 0 12px rgba(215,242,91,.08),0 0 30px rgba(215,242,91,.8)}}
+/* barra inferior */
+.dock{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:30;display:flex;gap:4px;padding:5px;border-radius:999px;max-width:calc(100% - 24px);overflow-x:auto;scrollbar-width:none}
+.dock::-webkit-scrollbar{display:none}
+.dbtn{height:40px;padding:0 16px;border-radius:999px;border:0;background:transparent;color:var(--ink);font:500 13px Inter,sans-serif;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:7px}
+.dbtn.on{background:var(--lime);color:#121409;font-weight:600}
+.dbtn svg{width:16px;height:16px}
+/* seletor de andar */
+.ruler{position:absolute;left:clamp(14px,4vw,48px);top:50%;transform:translateY(-50%);z-index:6;display:flex;gap:18px;align-items:stretch}
+.ticks{display:flex;flex-direction:column;gap:3px;padding:10px 8px;border-radius:18px}
+.tk{width:46px;height:30px;border-radius:9px;border:0;background:transparent;color:#d5d8cf;font:600 13px Inter,sans-serif;cursor:pointer;position:relative}
+.tk:hover{background:rgba(255,255,255,.1)}
+.tk.on{background:var(--lime);color:#121409}
+.tk.av::after{content:'';position:absolute;right:5px;top:5px;width:6px;height:6px;border-radius:50%;background:var(--lime)}
+.tk.on.av::after{background:#121409}
+.finfo{align-self:center;width:min(300px,62vw);border-radius:20px;padding:18px}
+.big{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:84px;line-height:.85;display:flex;align-items:flex-start;gap:4px}
+.big span{font-size:28px;color:var(--mute)}
+.kv{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:8px 0;border-bottom:1px solid var(--line)}
 .kv span:first-child{color:var(--mute)}
-.btn{display:flex;align-items:center;justify-content:center;height:48px;border-radius:999px;background:var(--lime);color:#121409;font-weight:600;font-size:14px;text-decoration:none;margin-top:14px;border:0;width:100%;cursor:pointer}
-.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
-@media (max-width:760px){.picker{top:auto;bottom:16px;transform:none;right:16px;left:16px;width:auto;padding:16px}.picker .num{font-size:64px}}
-/* leisure */
-.list{position:absolute;left:clamp(16px,5vw,64px);bottom:clamp(90px,12vh,130px);display:flex;flex-direction:column;gap:8px;z-index:3;max-width:360px}
-.list div{padding:12px 16px;border-radius:14px;font-size:14px}
-.list b{display:block;font-size:15px}
-.list small{color:var(--mute)}
-/* final */
-.final{min-height:100vh;display:grid;place-items:center;text-align:center;padding:120px 20px;background:radial-gradient(ellipse at 50% 0%,#1c2412 0%,var(--bg) 60%)}
-.final h2{font-size:clamp(44px,7vw,96px);margin:14px 0}
-.final p{color:var(--mute);max-width:560px;margin:0 auto 26px;line-height:1.6}
-.final .row{justify-content:center;flex-wrap:wrap}
-.final .btn{width:auto;padding:0 26px}
-footer{padding:28px 20px;text-align:center;color:#8a8e85;font-size:11.5px;border-top:1px solid var(--line)}
-.loading{position:fixed;inset:0;z-index:40;background:var(--bg);display:grid;place-items:center;transition:opacity .6s}
+.btn{display:flex;align-items:center;justify-content:center;height:46px;border-radius:999px;background:var(--lime);color:#121409;font-weight:600;font-size:14px;text-decoration:none;margin-top:14px}
+@media (max-width:760px){.ruler{left:10px;right:10px;top:auto;bottom:84px;transform:none;flex-direction:column-reverse;gap:8px}.ticks{flex-direction:row;overflow-x:auto;padding:6px}.tk{width:38px;flex:none}.finfo{width:auto;padding:14px}.big{font-size:56px}}
+/* lista do lazer */
+.side{position:absolute;right:clamp(14px,4vw,48px);bottom:96px;z-index:6;display:flex;flex-direction:column;gap:8px;max-width:330px}
+.side div{padding:12px 16px;border-radius:14px;font-size:13px}
+.side b{display:block;font-size:14.5px}
+.side small{color:var(--mute)}
+@media (max-width:760px){.side{display:none}}
+.skip{position:absolute;right:clamp(14px,3vw,32px);bottom:86px;z-index:7}
+.intro-bar{position:absolute;left:0;bottom:0;height:3px;background:var(--lime);width:0;z-index:7}
+.loading{position:fixed;inset:0;z-index:60;background:#000;display:grid;place-items:center;transition:opacity .6s}
 .loading.done{opacity:0;pointer-events:none}
-.loading b{font-family:'Barlow Condensed',sans-serif;font-size:28px;letter-spacing:.1em}
-.bar{width:180px;height:2px;background:rgba(255,255,255,.15);margin:14px auto 0}
-.bar i{display:block;height:100%;width:0;background:var(--lime);transition:width .3s}
+.loading b{font-family:'Barlow Condensed',sans-serif;font-size:30px;letter-spacing:.12em}
+.loading button{margin-top:22px}
+@media (max-width:760px){.hometitle{display:none}}
+.legal{position:fixed;left:14px;bottom:6px;z-index:25;font-size:10px;color:rgba(255,255,255,.5);pointer-events:none}
+@media (max-width:760px){@media (max-width:760px){.hometitle{display:none}}
+.legal{display:none}}
 </style>
 </head>
 <body>
-<div class="loading" id="loading"><div style="text-align:center"><b>VÉRTICE RESIDENCE</b><div class="bar"><i id="lbar"></i></div></div></div>
+<div id="app">
+  <!-- abertura -->
+  <section class="layer" id="L-intro">
+    <video id="v-intro" muted playsinline preload="auto" poster="assets/intro.jpg"><source src="assets/intro.mp4" type="video/mp4"></video>
+    <div class="shade"></div>
+    <div class="title" data-t="0.3-3.6"><div class="eyebrow">Beira-Mar Continental · Florianópolis</div><h1 class="disp">Vértice<br>Residence</h1></div>
+    <div class="title" data-t="4.2-7.2"><h2 class="disp">De frente para<br>a Hercílio Luz</h2><p>O mar da Baía Norte na janela e a ponte mais famosa do Brasil como vizinha.</p></div>
+    <button class="pill glass skip" data-go="home">Pular abertura</button>
+    <div class="intro-bar" id="ibar"></div>
+  </section>
+
+  <!-- vista geral (dia e noite) -->
+  <section class="layer" id="L-home">
+    <video id="v-dia" muted playsinline loop preload="auto" poster="assets/home_dia.jpg"><source src="assets/home_dia.mp4" type="video/mp4"></video>
+    <video id="v-noite" muted playsinline loop preload="auto" poster="assets/home_noite.jpg" style="opacity:0;transition:opacity 1.2s"><source src="assets/home_noite.mp4" type="video/mp4"></video>
+    <div class="shade"></div>
+    <div class="title on hometitle" style="bottom:96px"><div class="eyebrow">Explore o empreendimento</div><h2 class="disp" style="font-size:clamp(30px,4.2vw,58px)">Toque nos pontos<br>para entrar</h2></div>
+    <button class="hot" data-x="0.535" data-y="0.725" data-go="lazer"><span class="dot"></span><span class="lab">Lazer<small>Piscina, pergolado e gourmet</small></span></button>
+    <button class="hot" data-x="0.452" data-y="0.40" data-go="andar" data-tower="A"><span class="dot"></span><span class="lab">Torre A<small>Escolha seu andar</small></span></button>
+    <button class="hot" data-x="0.685" data-y="0.34" data-go="andar" data-tower="B"><span class="dot"></span><span class="lab">Torre B<small>Escolha seu andar</small></span></button>
+    <button class="hot" data-x="0.43" data-y="0.12" data-act="noite"><span class="dot"></span><span class="lab">Ponte Hercílio Luz<small>Ver acesa à noite</small></span></button>
+  </section>
+
+  <!-- escolha seu andar -->
+  <section class="layer" id="L-andar">
+    <video id="v-andar" muted playsinline preload="auto" poster="assets/andar.jpg"><source src="assets/andar.mp4" type="video/mp4"></video>
+    <div class="shade" style="background:linear-gradient(90deg,rgba(0,0,0,.55),rgba(0,0,0,0) 45%)"></div>
+    <div class="ruler">
+      <div class="ticks glass" id="ticks" role="group" aria-label="Andares"></div>
+      <div class="finfo glass">
+        <div class="eyebrow" id="ftower">Torre A · vista frente mar</div>
+        <div class="big"><b id="fnum">8</b><span>º andar</span></div>
+        <div style="margin-top:10px">
+          <div class="kv"><span>Altura</span><span id="falt">27 m</span></div>
+          <div class="kv"><span>Disponíveis</span><span id="fdisp">—</span></div>
+          <div class="kv"><span>A partir de</span><span id="fprice">—</span></div>
+        </div>
+        <a class="btn" id="funits" href="maquete/">Ver unidades e decorado</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- lazer -->
+  <section class="layer" id="L-lazer">
+    <video id="v-lazer" muted playsinline loop preload="auto" poster="assets/lazer.jpg"><source src="assets/lazer.mp4" type="video/mp4"></video>
+    <div class="shade"></div>
+    <div class="title on" style="bottom:auto;top:96px"><div class="eyebrow">Lazer entre as torres</div><h2 class="disp" style="font-size:clamp(32px,4.6vw,66px)">O fim de tarde<br>mais bonito da cidade</h2></div>
+    <div class="side">
+      <div class="glass"><b>Piscina com deck</b><small>Espreguiçadeiras e vista para a ponte</small></div>
+      <div class="glass"><b>Pergolado e jardim de palmeiras</b><small>Sombra, poltronas e paisagismo tropical</small></div>
+      <div class="glass"><b>Espaço kids, salão de jogos e gourmet</b><small>Escorregador, sinuca, churrasqueira e TV</small></div>
+    </div>
+  </section>
+</div>
 
 <header class="nav">
-  <div class="logo">VÉRTICE<small>RESIDENCE</small></div>
-  <a class="pill glass hide-m" href="#andar">Escolha seu andar</a>
-  <a class="pill glass hide-m" href="#lazer">Lazer</a>
-  <a class="pill glass hide-m" href="maquete/">Maquete 3D</a>
-  <a class="pill cta" id="wa-top" href="#" target="_blank" rel="noopener">Falar com corretor</a>
+  <div class="logo" data-go="home" role="link" tabindex="0">VÉRTICE<small>RESIDENCE</small></div>
+  <a class="pill glass hm" href="maquete/">Maquete 3D</a>
+  <a class="pill cta" id="wa" href="#" target="_blank" rel="noopener">Falar com corretor</a>
 </header>
+<nav class="dock glass" id="dock" aria-label="Cenas">
+  <button class="dbtn" data-go="home">Vista geral</button>
+  <button class="dbtn" data-go="andar">Escolha seu andar</button>
+  <button class="dbtn" data-go="lazer">Lazer</button>
+  <button class="dbtn" data-act="dianoite" id="dn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span>Noite</span></button>
+</nav>
+<div class="legal">Empreendimento fictício. Imagens ilustrativas geradas por IA.</div>
+<div class="loading" id="loading"><div style="text-align:center"><b>VÉRTICE RESIDENCE</b><br><button class="pill cta" id="start" style="margin:22px auto 0">Entrar</button></div></div>
 
-<!-- 1. abertura: o vídeo avança com a rolagem -->
-<section id="abertura" style="height:340vh;position:relative">
-  <div class="stage" data-scrub="abertura">
-    <div class="shade"></div>
-    <div class="cap" data-from="0" data-to="0.28"><div class="eyebrow">Beira-Mar Continental · Florianópolis</div><h1 class="disp">Vértice<br>Residence</h1></div>
-    <div class="cap" data-from="0.34" data-to="0.64"><h2 class="disp">De frente para<br>a Hercílio Luz</h2><p>O mar da Baía Norte na sua janela e a ponte mais famosa do Brasil como vizinha.</p></div>
-    <div class="cap" data-from="0.7" data-to="1.01"><h2 class="disp">Duas torres.<br>15 andares.</h2><p>Apartamentos de 2 dormitórios com suíte e um lazer completo entre as torres.</p></div>
-    <div class="scrollhint" id="hint"><span>Role para explorar</span><i></i></div>
-    <div class="progress" id="prog"></div>
-  </div>
-</section>
-
-<!-- 2. giro: arraste para girar / dia e noite -->
-<section id="giro" style="position:relative">
-  <div class="stage drag" data-drag="orbita" id="giro-stage">
-    <div class="shade"></div>
-    <div class="cap on" style="bottom:auto;top:110px"><div class="eyebrow">O empreendimento</div><h2 class="disp" style="font-size:clamp(34px,5vw,64px)">Gire e veja<br>de todos os lados</h2></div>
-    <div class="badge glass" id="drag-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 12h8M8 12l3-3M8 12l3 3M16 12l-3-3M16 12l-3 3"/></svg>Arraste para girar</div>
-    <div class="toolbar glass"><button class="tbtn on" data-mode="dia">Dia</button><button class="tbtn" data-mode="noite">Noite</button></div>
-  </div>
-</section>
-
-<!-- 3. escolha seu andar -->
-<section id="andar" style="position:relative">
-  <div class="stage" data-floor="andar">
-    <div class="shade"></div>
-    <div class="cap on" style="bottom:auto;top:110px"><div class="eyebrow">A vista de cada andar</div><h2 class="disp" style="font-size:clamp(34px,5vw,64px)">Escolha<br>seu andar</h2></div>
-    <aside class="picker glass" aria-label="Escolha seu andar">
-      <div class="eyebrow">Andar</div>
-      <div class="num"><b id="fnum">8</b><span>º</span></div>
-      <label for="frange" class="sr" style="position:absolute;left:-9999px">Andar</label>
-      <input id="frange" type="range" min="1" max="15" step="1" value="8">
-      <div class="row"><button class="sq" data-step="-1" aria-label="Descer um andar">−</button><button class="sq" data-step="1" aria-label="Subir um andar">+</button></div>
-      <div style="margin-top:12px">
-        <div class="kv"><span>Altura aproximada</span><span id="falt">27 m</span></div>
-        <div class="kv"><span>Unidades disponíveis</span><span id="fdisp">2</span></div>
-        <div class="kv"><span>A partir de</span><span id="fprice">R$ 766.000</span></div>
-      </div>
-      <a class="btn" id="funits" href="maquete/">Ver unidades deste andar</a>
-    </aside>
-  </div>
-</section>
-
-<!-- 4. lazer -->
-<section id="lazer" style="position:relative">
-  <div class="stage" data-loop="lazer">
-    <div class="shade"></div>
-    <div class="cap on" style="bottom:auto;top:110px"><div class="eyebrow">Lazer entre as torres</div><h2 class="disp" style="font-size:clamp(34px,5vw,64px)">O fim de tarde<br>mais bonito da cidade</h2></div>
-    <div class="list">
-      <div class="glass"><b>Piscina com deck</b><small>Vista para a ponte ao pôr do sol</small></div>
-      <div class="glass"><b>Pergolado e jardim de palmeiras</b><small>Sombra, poltronas e paisagismo tropical</small></div>
-      <div class="glass"><b>Salão de jogos e espaço gourmet</b><small>Sinuca, pebolim, churrasqueira e TV</small></div>
-    </div>
-  </div>
-</section>
-
-<!-- 5. fechamento -->
-<section class="final" id="contato">
-  <div>
-    <div class="eyebrow">Lançamento</div>
-    <h2 class="disp">Sua vista para<br>a Hercílio Luz</h2>
-    <p>Escolha a unidade na maquete 3D interativa, entre no apartamento decorado e envie sua proposta pelo WhatsApp.</p>
-    <div class="row"><a class="btn" href="maquete/">Abrir a maquete 3D</a><a class="btn ghost" id="wa-end" href="#" target="_blank" rel="noopener">Falar com um corretor</a></div>
-  </div>
-</section>
-<footer>Vértice Residence é um empreendimento fictício criado para demonstração. Imagens e vídeos ilustrativos gerados por inteligência artificial.</footer>
-
-<script>
-/* ===== configuração: vídeos de cada cena =====
-   Cada cena aceita uma sequência de imagens (seq: pasta + quantidade de quadros, rolagem mais suave)
-   ou um arquivo de vídeo (src). */
-window.CINEMA = {
-  whatsapp: '5548999990000',
-  scenes: {
-    /* primeiro tenta o arquivo da pasta assets; se não existir, usa o link da Higgsfield */
-    abertura: { src: ['assets/abertura.mp4', 'https://d8j0ntlcm91z4.cloudfront.net/user_3KCjDx0L3rcoB8WorPE2QStMwLR/hf_20261113_013033_bdc1af02-a179-4811-8968-aa7cf57bcd70.mp4'] },
-    orbita: { src: ['assets/orbita.mp4', 'https://d8j0ntlcm91z4.cloudfront.net/user_3KCjDx0L3rcoB8WorPE2QStMwLR/hf_20261113_013033_3e0eccfa-3b4c-44fe-87c7-e00ff2e9b011.mp4'] },
-    noite: { src: ['assets/noite.mp4', 'https://d8j0ntlcm91z4.cloudfront.net/user_3KCjDx0L3rcoB8WorPE2QStMwLR/hf_20261113_013137_171b5299-2f9f-4ee6-88f4-d41d6fff2cf1.mp4'] },
-    andar: { src: ['assets/andar.mp4', 'https://d8j0ntlcm91z4.cloudfront.net/user_3KCjDx0L3rcoB8WorPE2QStMwLR/hf_20261113_013145_dfbc991e-1751-4bbd-bf51-18319ffba312.mp4'] },
-    lazer: { src: ['assets/lazer.mp4', 'https://d8j0ntlcm91z4.cloudfront.net/user_3KCjDx0L3rcoB8WorPE2QStMwLR/hf_20261113_013033_95362cee-c1de-41ce-bff9-7c12ccb5209d.mp4'] }
-  }
-};
-</script>
 <script>
 (function () {
 'use strict';
-var C = window.CINEMA, S = C.scenes;
-var wa = 'https://wa.me/' + C.whatsapp + '?text=' + encodeURIComponent('Olá! Vi o Vértice Residence e quero saber mais sobre as unidades.');
-document.getElementById('wa-top').href = wa; document.getElementById('wa-end').href = wa;
-var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+var WHATS = '5548999990000';
+var $ = function (s) { return document.querySelector(s); }, $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
+$('#wa').href = 'https://wa.me/' + WHATS + '?text=' + encodeURIComponent('Olá! Vi o Vértice Residence e quero saber mais.');
+var V = { intro: $('#v-intro'), dia: $('#v-dia'), noite: $('#v-noite'), andar: $('#v-andar'), lazer: $('#v-lazer') };
+var scene = null, night = false, tower = 'A', busy = false;
+function play(v) { var p = v.play(); if (p && p.catch) p.catch(function () { }); }
 
-/* ---- mídia: sequência de quadros (canvas) ou vídeo ---- */
-function Media(host, cfg, opts) {
-  this.host = host; this.cfg = cfg; this.t = 0; this.target = 0; this.ready = false; this.dur = 1; opts = opts || {};
-  var self = this;
-  if (cfg.seq) {
-    var cv = document.createElement('canvas'); host.insertBefore(cv, host.firstChild); this.cv = cv; this.ctx = cv.getContext('2d');
-    this.imgs = []; var n = cfg.seq.count, loaded = 0;
-    for (var i = 0; i < n; i++) { var im = new Image(); im.decoding = 'async'; im.src = cfg.seq.path + String(i + 1).padStart(4, '0') + '.jpg'; im.onload = function () { loaded++; if (loaded === 1) self.ready = true; self.draw(); }; this.imgs.push(im); }
-    this.dur = n; addEventListener('resize', function () { self.draw(true); });
-  } else {
-    var v = document.createElement('video'); v.muted = true; v.playsInline = true; v.preload = 'auto'; v.setAttribute('playsinline', ''); v.setAttribute('muted', '');
-    if (opts.loop) { v.loop = true; v.autoplay = true; }
-    [].concat(cfg.src).forEach(function (u) { var so = document.createElement('source'); so.src = u; so.type = 'video/mp4'; v.appendChild(so); });
-    host.insertBefore(v, host.firstChild); this.v = v; this.scrub = !opts.loop;
-    v.addEventListener('loadedmetadata', function () { self.dur = v.duration || 1; self.ready = true; });
-    v.addEventListener('loadeddata', function () { self.ready = true; });
-  }
-}
-Media.prototype.seek = function (f) { this.target = Math.max(0, Math.min(1, f)); };
-Media.prototype.tick = function () {
-  if (!this.ready) return;
-  this.t += (this.target - this.t) * 0.18; if (Math.abs(this.target - this.t) < 0.0005) this.t = this.target;
-  if (this.v && this.scrub) {
-    /* avançar tocando o vídeo (fica liso); voltar ou pular longe usa busca */
-    var v = this.v, tt = this.target * Math.max(0, this.dur - 0.08), d = tt - v.currentTime;
-    if (d > 0.05 && d < 2) { v.playbackRate = Math.max(0.6, Math.min(4, d * 2.5)); if (v.paused) { var pp = v.play(); if (pp && pp.catch) pp.catch(function () { }); } }
-    else if (Math.abs(d) <= 0.05) { if (!v.paused) v.pause(); }
-    else { if (!v.paused) v.pause(); if (!v.seeking) v.currentTime = tt; }
-  }
-  else this.draw();
-};
-Media.prototype.draw = function (force) {
-  if (!this.cv) return; var i = Math.round(this.t * (this.imgs.length - 1)), im = this.imgs[i];
-  if (!im || !im.complete || !im.naturalWidth) { for (var k = i; k >= 0; k--) if (this.imgs[k].complete && this.imgs[k].naturalWidth) { im = this.imgs[k]; break; } }
-  if (!im) return; if (this.last === im && !force) return; this.last = im;
-  var cv = this.cv, w = cv.clientWidth * Math.min(devicePixelRatio || 1, 2), h = cv.clientHeight * Math.min(devicePixelRatio || 1, 2);
-  if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
-  var s = Math.max(w / im.naturalWidth, h / im.naturalHeight), dw = im.naturalWidth * s, dh = im.naturalHeight * s;
-  this.ctx.drawImage(im, (w - dw) / 2, (h - dh) / 2, dw, dh);
-};
-
-/* ---- 1. abertura com rolagem ---- */
-var abHost = document.querySelector('[data-scrub=abertura]'), ab = new Media(abHost, S.abertura), abSec = document.getElementById('abertura');
-var caps = abHost.querySelectorAll('.cap'), prog = document.getElementById('prog'), hint = document.getElementById('hint');
-function abScroll() {
-  var r = abSec.getBoundingClientRect(), total = abSec.offsetHeight - innerHeight, p = Math.max(0, Math.min(1, -r.top / total));
-  ab.seek(p); prog.style.width = (p * 100) + '%'; hint.style.opacity = p > 0.03 ? 0 : 0.85;
-  caps.forEach(function (c) { var a = +c.dataset.from, b = +c.dataset.to; c.classList.toggle('on', p >= a && p < b); });
-}
-
-/* ---- 2. giro arrastável + dia/noite ---- */
-var gHost = document.getElementById('giro-stage'), orb = new Media(gHost, S.orbita), night = null, mode = 'dia', drag = null, auto = 0, idle = 0;
-orb.seek(0.02);
-gHost.addEventListener('pointerdown', function (e) { if (e.target.closest('button')) return; drag = { x: e.clientX, f: orb.target }; gHost.setPointerCapture(e.pointerId); document.getElementById('drag-badge').style.opacity = 0; idle = performance.now(); });
-gHost.addEventListener('pointermove', function (e) { if (!drag) return; var f = drag.f - (e.clientX - drag.x) / (gHost.clientWidth * 1.1); orb.seek(((f % 1) + 1) % 1); idle = performance.now(); });
-gHost.addEventListener('pointerup', function () { drag = null; });
-gHost.addEventListener('pointercancel', function () { drag = null; });
-gHost.querySelectorAll('[data-mode]').forEach(function (b) {
-  b.addEventListener('click', function () {
-    mode = b.dataset.mode; gHost.querySelectorAll('[data-mode]').forEach(function (x) { x.classList.toggle('on', x === b); });
-    if (mode === 'noite') { if (!night) { night = new Media(gHost, S.noite, { loop: true }); night.v.style.opacity = 0; night.v.style.transition = 'opacity .8s'; } night.v.play && night.v.play().catch(function () { }); setTimeout(function () { night.v.style.opacity = 1; }, 30); document.getElementById('drag-badge').style.opacity = 0; }
-    else if (night) { night.v.style.opacity = 0; setTimeout(function () { if (mode === 'dia') night.v.pause(); }, 800); }
+/* posiciona os pontos clicáveis respeitando o recorte do vídeo (object-fit: cover) */
+function placeHots() {
+  var W = innerWidth, H = innerHeight, s = Math.max(W / 1280, H / 720), ox = (W - 1280 * s) / 2, oy = (H - 720 * s) / 2;
+  $$('.hot').forEach(function (h) {
+    var x = ox + (+h.dataset.x) * 1280 * s, y = oy + (+h.dataset.y) * 720 * s;
+    var vis = x > 20 && x < W - 20 && y > 70 && y < H - 80; h.style.display = vis ? '' : 'none';
+    h.style.left = x + 'px'; h.style.top = y + 'px';
   });
+}
+addEventListener('resize', placeHots);
+
+/* troca de cena com "mergulho" na direção do ponto clicado */
+function go(next, from) {
+  if (busy || next === scene) return; busy = true;
+  var cur = scene && $('#L-' + scene), nx = $('#L-' + next);
+  var ox = 50, oy = 50;
+  if (from && from.getBoundingClientRect) { var r = from.getBoundingClientRect(); ox = (r.left + 9) / innerWidth * 100; oy = (r.top + r.height / 2) / innerHeight * 100; }
+  var zoomIn = scene === 'home' && next !== 'home', zoomOut = next === 'home' && scene && scene !== 'intro';
+  if (next === 'andar') { V.andar.currentTime = timeFor(cur_floor); }
+  if (next === 'lazer') { V.lazer.currentTime = 0; play(V.lazer); }
+  if (next === 'home') { play(night ? V.noite : V.dia); }
+  nx.style.transition = 'none'; nx.style.transform = zoomIn ? 'scale(1.18)' : zoomOut ? 'scale(.92)' : 'none'; nx.offsetWidth; nx.style.transition = '';
+  if (cur) { cur.style.transformOrigin = ox + '% ' + oy + '%'; cur.style.transform = zoomIn ? 'scale(2.4)' : zoomOut ? 'scale(1.12)' : 'none'; cur.classList.remove('on'); }
+  nx.style.transformOrigin = ox + '% ' + oy + '%';
+  requestAnimationFrame(function () { nx.classList.add('on'); nx.style.transform = 'none'; });
+  var prev = scene; scene = next;
+  setTimeout(function () { if (cur) { cur.style.transform = 'none'; } if (prev === 'lazer') V.lazer.pause(); if (prev === 'home' && next !== 'home') { V.dia.pause(); V.noite.pause(); } busy = false; }, 1250);
+  $$('.dbtn[data-go]').forEach(function (b) { b.classList.toggle('on', b.dataset.go === next); });
+  $('#dn').style.display = next === 'home' ? '' : 'none';
+  if (next === 'home') placeHots();
+}
+
+/* dia e noite na vista geral */
+function setNight(n) {
+  night = n; $('#dn span').textContent = n ? 'Dia' : 'Noite';
+  if (n) { V.noite.currentTime = V.dia.currentTime % (V.noite.duration || 12); play(V.noite); V.noite.style.opacity = 1; }
+  else { V.noite.style.opacity = 0; play(V.dia); setTimeout(function () { if (!night) V.noite.pause(); }, 1300); }
+  if (scene !== 'home') go('home');
+}
+
+/* escolha seu andar: o vídeo sobe pela fachada (cada quadro é uma imagem completa, por isso a busca é lisa) */
+var AV = { A: { 2: ['A-202'], 3: ['A-304'], 5: ['A-501'], 6: ['A-603'], 7: ['A-702'], 8: ['A-801'], 9: ['A-904'], 10: ['A-1002'], 11: ['A-1103'], 12: ['A-1201'], 13: ['A-1302'], 14: ['A-1404'], 15: ['A-1501'] }, B: { 1: ['B-101'], 3: ['B-302'], 5: ['B-501'], 6: ['B-604'], 8: ['B-802'], 9: ['B-903'], 10: ['B-1001'], 11: ['B-1102'], 12: ['B-1204'], 13: ['B-1301'], 14: ['B-1403'], 15: ['B-1502'] } };
+var cur_floor = 8, seekTarget = null, rafSeek = null;
+function timeFor(f) { return 0.15 + (f - 1) / 14 * 6.4; }
+function buildTicks() {
+  var t = $('#ticks'); t.innerHTML = '';
+  for (var f = 15; f >= 1; f--) { var b = document.createElement('button'); b.className = 'tk' + ((AV[tower][f] || []).length ? ' av' : '') + (f === cur_floor ? ' on' : ''); b.textContent = f; b.dataset.f = f; b.setAttribute('aria-label', f + 'º andar'); t.appendChild(b); }
+}
+function setFloor(f) {
+  cur_floor = Math.max(1, Math.min(15, f));
+  $$('.tk').forEach(function (b) { b.classList.toggle('on', +b.dataset.f === cur_floor); });
+  $('#fnum').textContent = cur_floor; $('#falt').textContent = Math.round(cur_floor * 2.95 + 3) + ' m';
+  $('#ftower').textContent = 'Torre ' + tower + ' · vista frente mar';
+  var av = AV[tower][cur_floor] || []; $('#fdisp').textContent = av.length ? av.join(', ') : 'Esgotado';
+  $('#fprice').textContent = 'R$ ' + (690000 + cur_floor * 9500).toLocaleString('pt-BR');
+  $('#funits').href = 'maquete/' + (av[0] ? '#' + av[0] : '');
+  /* desliza o vídeo até o andar escolhido */
+  seekTarget = timeFor(cur_floor); if (!rafSeek) rafSeek = requestAnimationFrame(seekStep);
+}
+function seekStep() {
+  rafSeek = null; var v = V.andar; if (seekTarget == null) return;
+  var d = seekTarget - v.currentTime;
+  if (Math.abs(d) < 0.03) { seekTarget = null; return; }
+  if (!v.seeking) v.currentTime = v.currentTime + d * 0.16 + (d > 0 ? 0.01 : -0.01);
+  rafSeek = requestAnimationFrame(seekStep);
+}
+$('#ticks').addEventListener('click', function (e) { var b = e.target.closest('.tk'); if (b) setFloor(+b.dataset.f); });
+addEventListener('keydown', function (e) { if (scene === 'andar' && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) { e.preventDefault(); setFloor(cur_floor + (e.key === 'ArrowUp' ? 1 : -1)); } });
+addEventListener('wheel', function (e) { if (scene !== 'andar') return; if (Math.abs(e.deltaY) < 8) return; var now = performance.now(); if (now - (window._wt || 0) < 160) return; window._wt = now; setFloor(cur_floor + (e.deltaY < 0 ? 1 : -1)); }, { passive: true });
+
+/* cliques */
+document.addEventListener('click', function (e) {
+  var g = e.target.closest('[data-go]'); if (g) { e.preventDefault(); if (g.dataset.tower) { tower = g.dataset.tower; buildTicks(); } go(g.dataset.go, g.classList.contains('hot') ? g : null); if (g.dataset.go === 'andar') setFloor(cur_floor); return; }
+  var a = e.target.closest('[data-act]'); if (!a) return;
+  if (a.dataset.act === 'noite') { setNight(true); }
+  if (a.dataset.act === 'dianoite') { setNight(!night); }
 });
 
-/* ---- 3. escolha seu andar ---- */
-var fHost = document.querySelector('[data-floor=andar]'), fl = new Media(fHost, S.andar), fr = document.getElementById('frange');
-var AV = { 1: ['B-101'], 2: ['A-202'], 3: ['A-304', 'B-302'], 4: [], 5: ['A-501', 'B-501'], 6: ['A-603', 'B-604'], 7: ['A-702'], 8: ['A-801', 'B-802'], 9: ['A-904', 'B-903'], 10: ['A-1002', 'B-1001'], 11: ['A-1103', 'B-1102'], 12: ['A-1201', 'B-1204'], 13: ['A-1302', 'B-1301'], 14: ['A-1404', 'B-1403'], 15: ['A-1501', 'B-1502'] };
-function setFloor(f) {
-  f = Math.max(1, Math.min(15, f)); fr.value = f;
-  document.getElementById('fnum').textContent = f;
-  document.getElementById('falt').textContent = Math.round(f * 2.95 + 3) + ' m';
-  var av = AV[f] || []; document.getElementById('fdisp').textContent = av.length ? av.length + ' (' + av.join(', ') + ')' : 'Esgotado';
-  document.getElementById('fprice').textContent = 'R$ ' + (590000 + f * 7800).toLocaleString('pt-BR');
-  document.getElementById('funits').href = 'maquete/' + (av[0] ? '#' + av[0] : '');
-  fl.seek(0.04 + (f - 1) / 14 * 0.9);
+/* abertura */
+var titles = $$('#L-intro .title');
+V.intro.addEventListener('timeupdate', function () {
+  var t = V.intro.currentTime, d = V.intro.duration || 10;
+  $('#ibar').style.width = (t / d * 100) + '%';
+  titles.forEach(function (el) { var r = el.dataset.t.split('-'); el.classList.toggle('on', t >= +r[0] && t < +r[1]); });
+});
+V.intro.addEventListener('ended', function () { V.dia.currentTime = 0; go('home'); });
+function begin() {
+  $('#loading').classList.add('done');
+  scene = 'intro'; $('#L-intro').classList.add('on'); play(V.intro);
+  /* deixa os outros vídeos prontos para tocar sem espera */
+  [V.dia, V.noite, V.lazer, V.andar].forEach(function (v) { var p = v.play(); if (p && p.then) p.then(function () { v.pause(); v.currentTime = 0; }).catch(function () { }); });
+  $('#dn').style.display = 'none';
 }
-fr.addEventListener('input', function () { setFloor(+fr.value); });
-fHost.querySelectorAll('[data-step]').forEach(function (b) { b.addEventListener('click', function () { setFloor(+fr.value + +b.dataset.step); }); });
-setFloor(8);
-
-/* ---- 4. lazer em loop ---- */
-var lz = new Media(document.querySelector('[data-loop=lazer]'), S.lazer, { loop: true });
-var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (lz.v) { if (e.isIntersecting) lz.v.play().catch(function () { }); else lz.v.pause(); } }); }, { threshold: 0.2 });
-io.observe(document.getElementById('lazer'));
-
-/* ---- iOS: libera os vídeos no primeiro toque ---- */
-addEventListener('touchstart', function un() { [ab, orb, fl].forEach(function (m) { if (m.v) { var p = m.v.play(); if (p && p.then) p.then(function () { m.v.pause(); }).catch(function () { }); } }); removeEventListener('touchstart', un); }, { passive: true });
-/* ---- loop ---- */
-function loop(t) {
-  abScroll();
-  if (!drag && mode === 'dia' && !reduce && t - idle > 4000) orb.seek((orb.target + 0.0006) % 1);
-  ab.tick(); orb.tick(); fl.tick();
-  requestAnimationFrame(loop);
-}
-requestAnimationFrame(loop);
-
-/* ---- carregamento ---- */
-var lb = document.getElementById('lbar'), start = performance.now();
-(function check() {
-  var p = [ab, orb, fl].filter(function (m) { return m.ready; }).length / 3; lb.style.width = (p * 100) + '%';
-  if (p >= 1 || performance.now() - start > 9000) { document.getElementById('loading').classList.add('done'); return; }
-  setTimeout(check, 200);
-})();
+$('#start').addEventListener('click', begin);
+buildTicks(); placeHots();
+/* entra sozinho se o navegador permitir vídeo automático */
+var tryAuto = V.intro.play(); if (tryAuto && tryAuto.then) tryAuto.then(function () { V.intro.pause(); V.intro.currentTime = 0; begin(); }).catch(function () { });
 })();
 </script>
 </body>
