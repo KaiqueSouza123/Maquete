@@ -88,6 +88,11 @@ a{color:#d7f25b}a:hover{color:#eaff8a}
 .hint{position:absolute;left:16px;bottom:22px;font-size:11.5px;color:#d5d9cf;text-shadow:0 1px 8px rgba(0,0,0,.7);z-index:3;pointer-events:none}
 .hover-tag{position:absolute;left:50%;top:84px;transform:translateX(-50%);padding:8px 14px;border-radius:999px;font-size:12.5px;z-index:4;pointer-events:none;white-space:nowrap}
 .hover-tag b{color:#d7f25b}
+.routes{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;overflow:visible}
+.kiosk body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.kiosk .pill,.kiosk .item,.kiosk .cta,.kiosk .ghost{min-height:48px;font-size:15px}
+.kiosk .pin-l{height:40px;font-size:14px;padding:0 16px 0 12px}
+.kiosk #hint{display:none}
 .pins{position:absolute;inset:0;pointer-events:none;z-index:2}
 .pin{position:absolute;left:0;top:0;opacity:0;border:0;padding:0;background:none;cursor:pointer;transition:opacity .25s;will-change:transform}
 .pin-in{display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-100%)}
@@ -220,6 +225,20 @@ window.MAQUETE_CONFIG = {
 
   /* Ponte Hercílio Luz: centro aproximado e direção do eixo. Use o modo de ajuste (?ajuste=1) para marcar o topo das torres. */
   bridge: { lat: -27.5935, lon: -48.5649, heading: 62 },
+
+
+  /* Pontos próximos (coordenadas reais). cat: mercado, escola, saude, compras, farmacia, lazer, mobilidade */
+  pois: [
+    { id: 'sesc', cat: 'escola', name: 'Escola SESC Estreito', lat: -27.5910433, lon: -48.5776972 },
+    { id: 'boiteux', cat: 'escola', name: 'EEB José Boiteux', lat: -27.5902653, lon: -48.5792498 },
+    { id: 'farmacia', cat: 'farmacia', name: 'Farmácia Preço Popular', lat: -27.588442, lon: -48.5769523 },
+    { id: 'ponte', cat: 'lazer', name: 'Ponte Hercílio Luz', lat: -27.5935, lon: -48.5649 },
+    { id: 'mirante', cat: 'lazer', name: 'Academia ao ar livre e mirante', lat: -27.5837593, lon: -48.577462 },
+    { id: 'marques', cat: 'mercado', name: 'Mercado Marques Express', lat: -27.5917745, lon: -48.5817355 },
+    { id: 'imperatriz', cat: 'mercado', name: 'Supermercados Imperatriz', lat: -27.5839166, lon: -48.5838952 },
+    { id: 'macshop', cat: 'compras', name: 'Mac Shopping', lat: -27.5836648, lon: -48.5832871 },
+    { id: 'hospital', cat: 'saude', name: 'Hospital Florianópolis', lat: -27.5896154, lon: -48.587252 }
+  ],
 
   /* WhatsApp que recebe as propostas (somente números, com DDI e DDD) */
   whatsapp: '5548999990000',
@@ -2028,7 +2047,7 @@ function boot() {
     available: AV,
     onPick: function (id) { if (S.calib) return; if (id) selectUnit(id); else if (S.sel && S.scene === 'site') closeUnit(); },
     onHover: function (id) { if (S.calib) return; S.hover = id; renderHover(); },
-    onFrame: positionPins,
+    onFrame: function () { positionPins(); drawRoute(); },
     onStatus: function (st, msg) { if (st === 'erro') { S.tilesErr = msg; renderStatus(); } },
     onAttribution: function (t) { S.gcopy = t; renderAttr(); },
     onDeco: function (ok) { S.decoOK = ok; render(); },
@@ -2043,6 +2062,8 @@ function boot() {
     S.sun = engine.setTime(SEASONS[S.season].m, SEASONS[S.season].d, S.hour);
     S.ready = true; $('loading').style.display = 'none';
     if (DEMO) setTimeout(demoGate, 300);
+    if (Q.get('modo') === 'perto' || location.hash === '#perto') setTimeout(function () { setMode('perto'); }, 1500);
+    if (KIOSK) setTimeout(function () { if (!S.tour && S.mode === 'explorar') startTour(); }, 4000);
     var hu = decodeURIComponent(location.hash.slice(1)); if (/^[AB]-\d+0[1-4]$/.test(hu)) setTimeout(function () { if (status(hu) === 'disp') selectUnit(hu); else setMode('unidades'); }, 1200);
     window.MAQUETE = engine;
     if (opts.google && SITE.autoGround !== false && !(saved && saved.site && saved.site.grounded)) autoGround();
@@ -2086,6 +2107,7 @@ function currentPins() {
   if (!S.ready) return [];
   var sc = S.scene, list = [];
   if (sc === 'site' && S.mode === 'lazer') list = [['piscina', 'Piscina'], ['sombra', 'Pergolado e sombra'], ['kids', 'Espaço kids'], ['jogos', 'Salão de jogos'], ['gourmet', 'Espaço gourmet'], ['palmeiras', 'Palmeiras']].map(function (p) { return { scene: 'site', key: p[0], label: p[1], act: 'space', arg: p[0] }; });
+  else if (sc === 'site' && S.mode === 'perto') list = POIS.map(function (p) { return { scene: 'site', pos: function () { return poiPos(p); }, label: p.name + (ROUTES[p.id] ? ' · ' + fmtMin(ROUTES[p.id].walk.s) + ' a pé' : ''), act: 'poi', arg: p.id }; }).concat([{ scene: 'site', pos: function () { return [0, 75, 0]; }, label: 'Vértice Residence', act: 'mode', arg: 'perto' }]);
   else if (sc === 'site' && !S.sel && !S.tour && !S.calib) {
     list = [['torreA', 'Torre A', 'mode', 'unidades'], ['torreB', 'Torre B', 'mode', 'unidades'], ['lazer', 'Lazer', 'mode', 'lazer']].map(function (p) { return { scene: 'site', key: p[0], label: p[1], act: p[2], arg: p[3] }; });
     if (engine && engine.bridgeInfo) list.push({ scene: 'site', pos: function () { var c = bridgeCenter(); return c && [c[0], c[1] + 40, c[2]]; }, label: 'Ponte Hercílio Luz', act: 'bridgeview', arg: '' });
@@ -2118,6 +2140,8 @@ function setMode(mode) {
   engine.setLayer('site', 'roofs', mode !== 'lazer');
   if (mode === 'explorar') { engine.go('site', 'overview'); S.sel = null; engine.select(null); }
   if (mode === 'unidades') { engine.go('site', S.sel ? engine.unitView(S.sel) : 'front'); if (S.sel) engine.select(S.sel); }
+  if (mode === 'perto') { S.sel = null; engine.select(null); S.poi = null; S.route = null; engine.go('site', nearView(), 1800); }
+  if (mode !== 'perto') { S.poi = null; S.route = null; }
   if (mode === 'lazer' || mode === 'interiores') { engine.go('site', mode === 'lazer' ? 'lazer' : 'overview'); S.sel = null; engine.select(null); }
   S.mode = mode; render();
 }
@@ -2178,7 +2202,7 @@ function render() {
   $('hint').textContent = S.scene === 'site' ? 'Arraste para girar · role para aproximar · botão direito ou Shift para mover' : 'Arraste para olhar em volta · role para aproximar · clique nos ambientes';
 }
 function renderNav() {
-  setHTML('nav', [['explorar', 'Explorar'], ['unidades', 'Unidades'], ['lazer', 'Lazer'], ['interiores', 'Interiores']].map(function (n) { return '<button class="pill' + (S.mode === n[0] ? ' on' : '') + '" data-act="mode" data-arg="' + n[0] + '">' + n[1] + '</button>'; }).join(''));
+  setHTML('nav', [['explorar', 'Explorar'], ['unidades', 'Unidades'], ['perto', 'Proximidades'], ['lazer', 'Lazer'], ['interiores', 'Interiores']].map(function (n) { return '<button class="pill' + (S.mode === n[0] ? ' on' : '') + '" data-act="mode" data-arg="' + n[0] + '">' + n[1] + '</button>'; }).join(''));
 }
 function item(act, arg, label, desc, on) { return '<button class="item' + (on ? ' on' : '') + '" data-act="' + act + '" data-arg="' + esc(arg) + '"><span class="dot"></span><span><b>' + esc(label) + '</b><small>' + esc(desc) + '</small></span></button>'; }
 function renderPanel() {
@@ -2205,6 +2229,10 @@ function renderPanel() {
       [['todas', 'Todas'], ['t1', 'Frente mar'], ['t2', 'Fundos']].map(function (x) { return '<button class="chip' + (S.filter === x[0] ? ' on' : '') + '" data-act="filter" data-arg="' + x[0] + '">' + x[1] + '</button>'; }).join('') +
       '</div><div class="mirror" style="grid-template-columns:34px repeat(8,minmax(0,1fr));gap:3px"><span></span>' + ['A1', 'A2', 'A3', 'A4', 'B1', 'B2', 'B3', 'B4'].map(function (x) { return '<span class="mh">' + x + '</span>'; }).join('') + rows + '</div>' +
       '<div class="legend"><span><i style="background:#d7f25b"></i>Disponível</span><span><i style="background:#f5a623"></i>Reservada</span><span><i style="background:#3a3d3a"></i>Vendida</span></div><p class="note">4 apartamentos por andar: finais 01 e 02 de frente para o mar e a ponte, 03 e 04 nos fundos. Todos com 2 dormitórios (1 suíte), 68 m².</p>';
+  } else if (inSite && S.mode === 'perto') {
+    h = '<div class="eyebrow">O que há perto</div><h2 class="h">Tudo a poucos passos</h2><p class="p">Toque em um lugar para ver o caminho no mapa e o tempo a pé e de carro.</p><div class="list">' +
+      POIS.map(function (p) { var d = p.dist, r = ROUTES[p.id], txt = r ? fmtMin(r.walk.s) + ' a pé · ' + fmtMin(r.drive.s) + ' de carro' : (d < 1000 ? Math.round(d / 10) * 10 + ' m' : (d / 1000).toFixed(1).replace('.', ',') + ' km') + ' · ' + CATN[p.cat]; return item('poi', p.id, p.name, txt, S.poi === p.id); }).join('') +
+      '</div><p class="note">Distâncias e tempos calculados pelo Google Maps' + (ROUTES_OK === false ? ' (aproximados enquanto as rotas carregam)' : '') + '.</p>';
   } else if (inSite && S.mode === 'lazer') {
     h = '<div class="eyebrow">Lazer entre as torres</div><h2 class="h">Clique e entre em cada espaço</h2><p class="p">As coberturas do salão de jogos e do espaço gourmet ficam abertas para você ver por dentro.</p><div class="list">' +
       [['piscina', 'Piscina com deck', 'Espreguiçadeiras e guarda-sóis'], ['sombra', 'Pergolado e sombra', 'Poltronas sob o pergolado'], ['palmeiras', 'Jardim de palmeiras', 'Paisagismo tropical'], ['kids', 'Espaço kids', 'Escorregador, balanço e areia'], ['jogos', 'Salão de jogos', 'Sinuca, pebolim, sofá e TV'], ['gourmet', 'Espaço gourmet', 'Churrasqueira, mesa para 8 e TV']].map(function (p) { return item('space', p[0], p[1], p[2], S.focus === p[0]); }).join('') + '</div>';
@@ -2268,6 +2296,7 @@ function renderBar() {
   else { b.push(['Planta 3D', 'room', 'overview']); b.push(['Vista', 'room', S.scene === 'deco' ? 'vista' : 'sacada']); }
   b.push(['Sol', 'sun', '', S.sunOpen]); b.push([isNight() ? 'Dia' : 'Noite', 'night', '']);
   if (inSite) b.push([S.tour ? 'Parar tour' : 'Tour', 'tour', '', S.tour]); else b.push(['Voltar', 'back', '']);
+  if (KIOSK || matchMedia('(pointer: coarse)').matches) b.push(['Tela cheia', 'fullscreen', '']);
   setHTML('bar', b.map(function (x) { return '<button class="pill' + (x[3] ? ' on' : '') + '" data-act="' + x[1] + '" data-arg="' + x[2] + '">' + x[0] + '</button>'; }).join(''));
 }
 function renderModal() {
@@ -2326,6 +2355,94 @@ function calibClick(e) {
   S.calib = null; render();
 }
 
+
+/* ---------------- proximidades: rotas reais até os pontos de interesse ---------------- */
+var CATN = { mercado: 'Mercado', escola: 'Escola', saude: 'Saúde', compras: 'Compras', farmacia: 'Farmácia', lazer: 'Lazer', mobilidade: 'Mobilidade' };
+function haversine(a, b, c, d) { var R = 6371000, r = Math.PI / 180, x = (c - a) * r, y = (d - b) * r, s = Math.sin(x / 2) * Math.sin(x / 2) + Math.cos(a * r) * Math.cos(c * r) * Math.sin(y / 2) * Math.sin(y / 2); return 2 * R * Math.asin(Math.sqrt(s)); }
+var POIS = (CFG.pois || []).map(function (p) { var o = Object.assign({}, p); o.dist = haversine(SITE.lat, SITE.lon, p.lat, p.lon); return o; }).sort(function (a, b) { return a.dist - b.dist; });
+var ROUTES = {}, ROUTES_OK = null;
+try { var rc = JSON.parse(localStorage.getItem('maquete-rotas-v1') || '{}'); if (rc.o === SITE.lat + ',' + SITE.lon) ROUTES = rc.r || {}; } catch (e) { }
+function fmtMin(s) { var m = Math.max(1, Math.round(s / 60)); return m < 60 ? m + ' min' : Math.floor(m / 60) + ' h ' + (m % 60) + ' min'; }
+function decodePoly(str) { var pts = [], i = 0, lat = 0, lng = 0; while (i < str.length) { var b, sh = 0, res = 0; do { b = str.charCodeAt(i++) - 63; res |= (b & 31) << sh; sh += 5; } while (b >= 32); lat += (res & 1) ? ~(res >> 1) : (res >> 1); sh = 0; res = 0; do { b = str.charCodeAt(i++) - 63; res |= (b & 31) << sh; sh += 5; } while (b >= 32); lng += (res & 1) ? ~(res >> 1) : (res >> 1); pts.push([lat / 1e5, lng / 1e5]); } return pts; }
+function routeApi(p, mode) {
+  return fetch('https://routes.googleapis.com/directions/v2:computeRoutes', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': CFG.googleKey, 'X-Goog-FieldMask': 'routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline' },
+    body: JSON.stringify({ origin: { location: { latLng: { latitude: SITE.lat, longitude: SITE.lon } } }, destination: { location: { latLng: { latitude: p.lat, longitude: p.lon } } }, travelMode: mode, languageCode: 'pt-BR' }) })
+    .then(function (r) { if (!r.ok) throw new Error('rotas ' + r.status); return r.json(); })
+    .then(function (j) { var r = j.routes && j.routes[0]; if (!r) throw new Error('sem rota'); return { s: parseInt(r.duration, 10) || 0, m: r.distanceMeters || 0, pts: decodePoly(r.polyline.encodedPolyline) }; });
+}
+function getRoute(p) {
+  if (ROUTES[p.id]) return Promise.resolve(ROUTES[p.id]);
+  if (ROUTES_OK === false || !CFG.googleKey) return Promise.resolve(null);
+  return Promise.all([routeApi(p, 'WALK'), routeApi(p, 'DRIVE')]).then(function (rs) {
+    ROUTES_OK = true; ROUTES[p.id] = { walk: { s: rs[0].s, m: rs[0].m }, drive: { s: rs[1].s, m: rs[1].m }, pts: rs[0].pts };
+    try { localStorage.setItem('maquete-rotas-v1', JSON.stringify({ o: SITE.lat + ',' + SITE.lon, r: ROUTES })); } catch (e) { }
+    return ROUTES[p.id];
+  }).catch(function () { ROUTES_OK = false; return null; });
+}
+/* altura do chão real (Google 3D) em cada ponto da rota, guardada para não recalcular */
+var hCache = {};
+function groundAt(x, z) {
+  var k = Math.round(x / 4) + ',' + Math.round(z / 4);
+  if (hCache[k] != null) return hCache[k];
+  var y = null; if (engine && engine.tiles && engine.tiles.drawn && engine.tiles.drawn.length) { var hit = engine.tiles.raycast([x, 600, z], [0, -1, 0]); if (hit) y = hit[1]; }
+  if (y != null) hCache[k] = y; return y == null ? 0 : y;
+}
+function toLocal(lat, lon, lift) { var F = engine && engine.frame; if (!F) return null; var p = F.fromGeo(lat, lon, F.h); var y = groundAt(p[0], p[2]); return [p[0], y + (lift || 3), p[2]]; }
+function poiPos(p) { return toLocal(p.lat, p.lon, 14); }
+function nearView(pt) {
+  var far = POIS.length ? Math.max.apply(null, POIS.map(function (p) { return p.dist; })) : 900;
+  if (!pt) return { t: [0, 0, 0], d: Math.min(3200, far * 2.1 + 300), yaw: Math.PI, pitch: 1.05 };
+  var m = [pt[0] / 2, 0, pt[2] / 2], d = Math.hypot(pt[0], pt[2]);
+  return { t: m, d: Math.max(420, d * 1.55 + 220), yaw: Math.PI, pitch: 0.95 };
+}
+function showPoi(id) {
+  var p = POIS.filter(function (q) { return q.id === id; })[0]; if (!p || !engine) return;
+  stopTour(); if (S.mode !== 'perto') { S.mode = 'perto'; }
+  S.poi = id; S.route = { p: p, pts: null, t0: performance.now() };
+  var pt = toLocal(p.lat, p.lon, 0); if (pt) engine.go('site', nearView(pt), 1600);
+  render();
+  getRoute(p).then(function (r) {
+    if (S.poi !== id) return;
+    S.route.pts = r ? r.pts : [[SITE.lat, SITE.lon], [p.lat, p.lon]]; S.route.real = !!r; S.route.t0 = performance.now();
+    var info = r ? fmtMin(r.walk.s) + ' a pé (' + (r.walk.m / 1000).toFixed(1).replace('.', ',') + ' km) · ' + fmtMin(r.drive.s) + ' de carro'
+      : 'Cerca de ' + fmtMin(p.dist * 1.25 / 80 * 60) + ' a pé · ' + fmtMin(p.dist * 1.4 / 420 * 60 + 120) + ' de carro (estimativa)';
+    toast(p.name + ': ' + info, 9000); render();
+  });
+}
+var routeSvg = null;
+function drawRoute() {
+  if (!routeSvg) { routeSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); routeSvg.setAttribute('class', 'routes'); routeSvg.innerHTML = '<defs><filter id="rg" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3"/></filter></defs><path id="rgl" fill="none" stroke="#d7f25b" stroke-width="10" stroke-opacity=".35" filter="url(#rg)" stroke-linecap="round" stroke-linejoin="round"/><path id="rln" fill="none" stroke="#d7f25b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path id="rdash" fill="none" stroke="#15170f" stroke-width="1.6" stroke-dasharray="2 10" stroke-linecap="round"/>'; $('pins').parentNode.insertBefore(routeSvg, $('pins')); }
+  var R = S.route, on = R && R.pts && S.scene === 'site' && S.mode === 'perto' && engine.fade >= 0.6;
+  routeSvg.style.display = on ? '' : 'none'; if (!on) return;
+  if (!R.loc) { R.loc = R.pts.map(function (q) { return [q[0], q[1]]; }); }
+  /* a linha "cresce" do prédio até o destino em 1,6 s */
+  var k = Math.min(1, (performance.now() - R.t0) / 1600), n = Math.max(2, Math.ceil(R.loc.length * k)), d = '', pen = false;
+  for (var i = 0; i < n; i++) {
+    var L = toLocal(R.loc[i][0], R.loc[i][1], 2.5), s = L && engine.project(L);
+    if (!s) { pen = false; continue; }
+    d += (pen ? 'L' : 'M') + s.x.toFixed(1) + ' ' + s.y.toFixed(1); pen = true;
+  }
+  $('rgl').setAttribute('d', d); $('rln').setAttribute('d', d); $('rdash').setAttribute('d', d);
+  $('rdash').style.strokeDashoffset = String(-(performance.now() / 40) % 12);
+}
+
+/* ---------------- modo tablet (quiosque): ?quiosque=1 ---------------- */
+var KIOSK = Q.get('quiosque') === '1' || Q.get('kiosk') === '1', idleT = null;
+try { if (KIOSK) sessionStorage.setItem('kiosk', '1'); else KIOSK = sessionStorage.getItem('kiosk') === '1'; } catch (e) { }
+function goFull() { var d = document.documentElement; try { if (!document.fullscreenElement) (d.requestFullscreen || d.webkitRequestFullscreen || function () { }).call(d); else document.exitFullscreen(); } catch (e) { } }
+function kioskReset() {
+  if (!engine) return; S.prop = null; S.sunOpen = false; S.poi = null; S.route = null;
+  if (S.scene !== 'site') backToSite(); closeUnit(); setMode('explorar'); applySun(16.5); setTimeout(function () { if (!S.tour) startTour(); }, 1500);
+}
+function kioskPoke() { clearTimeout(idleT); idleT = setTimeout(kioskReset, 90000); }
+if (KIOSK) {
+  document.documentElement.classList.add('kiosk');
+  ['pointerdown', 'keydown', 'wheel'].forEach(function (ev) { addEventListener(ev, kioskPoke, { passive: true }); });
+  addEventListener('pointerdown', function first() { removeEventListener('pointerdown', first); goFull(); });
+  document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  kioskPoke();
+}
+
 /* ---------------- eventos ---------------- */
 var ACT = {
   mode: function (a) { if (a === 'interiores' && S.scene !== 'site') { backToSite(); } setMode(a); },
@@ -2351,6 +2468,8 @@ var ACT = {
   night: function () { applySun(isNight() ? 16.5 : 20.5); },
   view: function (a) { stopTour(); engine.setLayer('site', 'roofs', true); engine.go('site', a); render(); },
   bridgeview: function () { bridgeView(); },
+  poi: function (a) { showPoi(a); },
+  fullscreen: function () { goFull(); },
   tour: function () { startTour(); },
   calib: function (a) { S.calib = S.calib === a ? null : a; if (S.calib && S.scene !== 'site') backToSite(); render(); },
   ground: function () { var y = engine.probeGround(); if (y == null) { toast('Ainda carregando o entorno em volta do terreno. Espere uns segundos e tente de novo.'); return; } SITE.h = (SITE.h || 0) + y; engine.setSite(SITE.lat, SITE.lon, SITE.h, SITE.heading); toast('Terreno encaixado (' + (y >= 0 ? '+' : '') + y.toFixed(1) + ' m).'); render(); },
