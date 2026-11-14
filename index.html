@@ -36,8 +36,10 @@ html,body{margin:0;height:100%;background:#000;color:var(--ink);font-family:Inte
 .title h2{font-size:clamp(36px,5.6vw,84px)}
 .title p{font-size:clamp(14px,1.5vw,18px);line-height:1.55;color:#ecede6;margin:12px 0 0;max-width:520px;text-shadow:0 2px 12px rgba(0,0,0,.6)}
 /* pontos clicáveis sobre o vídeo */
-.hot{position:absolute;left:0;top:0;z-index:5;transform:translate(-50%,-50%);display:flex;align-items:center;gap:10px;cursor:pointer;border:0;background:none;color:var(--ink);padding:0;opacity:0;transition:opacity .5s}
+.hot{position:absolute;left:0;top:0;z-index:5;transform:translate(-9px,-50%);display:flex;align-items:center;gap:10px;cursor:pointer;border:0;background:none;color:var(--ink);padding:0;opacity:0;transition:opacity .5s}
 .layer.on .hot{opacity:1}
+.hot.flip{flex-direction:row-reverse;transform:translate(calc(-100% + 9px),-50%)}
+.hot.flip .lab{text-align:right}
 .hot .dot{width:18px;height:18px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 6px rgba(215,242,91,.25),0 0 22px rgba(215,242,91,.6);animation:pulse 2s infinite;flex:none}
 .hot .lab{padding:9px 14px;border-radius:999px;font:600 13px Inter,sans-serif;white-space:nowrap;background:rgba(10,12,14,.72);border:1px solid var(--line);backdrop-filter:blur(10px);transition:background .2s,color .2s}
 .hot:hover .lab,.hot:focus-visible .lab{background:var(--lime);color:#121409}
@@ -68,7 +70,8 @@ html,body{margin:0;height:100%;background:#000;color:var(--ink);font-family:Inte
 /* unidades destacadas sobre a fachada */
 .units{position:absolute;inset:0;z-index:4;pointer-events:none;opacity:0;transition:opacity .35s}
 .units.show{opacity:1}
-.ubox{position:absolute;pointer-events:auto;cursor:pointer;border:2px solid var(--lime);border-radius:6px;background:rgba(215,242,91,.14);box-shadow:0 0 0 1px rgba(0,0,0,.2),0 0 28px rgba(215,242,91,.45),inset 0 0 30px rgba(215,242,91,.18);transition:background .2s,box-shadow .2s;padding:0}
+.layer.on .units.show .ubox{pointer-events:auto}
+.ubox{position:absolute;pointer-events:none;cursor:pointer;border:2px solid var(--lime);border-radius:6px;background:rgba(215,242,91,.14);box-shadow:0 0 0 1px rgba(0,0,0,.2),0 0 28px rgba(215,242,91,.45),inset 0 0 30px rgba(215,242,91,.18);transition:background .2s,box-shadow .2s;padding:0}
 .ubox:hover{background:rgba(215,242,91,.26)}
 .ubox.sel{background:rgba(215,242,91,.34);box-shadow:0 0 0 3px rgba(215,242,91,.35),0 0 40px rgba(215,242,91,.7),inset 0 0 40px rgba(215,242,91,.3)}
 .ubox.sold{border:2px dashed rgba(255,255,255,.55);background:rgba(20,20,20,.38);box-shadow:none;cursor:not-allowed}
@@ -89,6 +92,29 @@ html,body{margin:0;height:100%;background:#000;color:var(--ink);font-family:Inte
  .finfo .btn{grid-row:2;margin:0;height:38px;padding:0 14px;font-size:12.5px}
  .finfo .btn2{display:none!important}
  .hint{top:76px;right:12px;font-size:11.5px}
+}
+/* pássaros e som */
+.birds{position:fixed;inset:0;z-index:3;pointer-events:none;overflow:hidden}
+.bird{position:absolute;left:-60px;width:26px;height:12px;opacity:.85;animation:fly linear forwards}
+.bird svg{width:100%;height:100%;overflow:visible}
+.bird path{fill:none;stroke:#1d1f22;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;animation:flap .45s ease-in-out infinite alternate}
+.night .bird{opacity:0}
+@keyframes fly{to{transform:translate(calc(100vw + 120px),var(--dy))}}
+@keyframes flap{from{d:path("M1 6 Q7 0 13 6 Q19 0 25 6")}to{d:path("M1 2 Q7 8 13 6 Q19 8 25 2")}}
+.snd svg{width:16px;height:16px}
+@media (min-width:761px){
+ .ruler{inset:0;transform:none;display:block;pointer-events:none}
+ .ticks{position:absolute;left:clamp(14px,3vw,40px);top:50%;transform:translateY(-50%);pointer-events:none}
+ .layer.on .ticks,.layer.on .finfo{pointer-events:auto}
+ .finfo{position:absolute;left:50%;bottom:84px;transform:translateX(-50%);width:auto;pointer-events:none;display:grid;grid-template-columns:auto minmax(220px,auto) auto;align-items:center;gap:4px 26px;padding:14px 22px;border-radius:22px}
+ .finfo .eyebrow{grid-column:1/4}
+ .finfo .big{font-size:66px;grid-row:2/4}
+ .finfo>div:nth-of-type(3){margin:0!important;grid-row:2/4}
+ .finfo .kv{padding:4px 0}
+ .finfo .kv:first-child{display:none}
+ .finfo .btn,.finfo .btn2{grid-column:3;margin:0}
+ .finfo .btn{grid-row:2;padding:0 20px;height:42px}
+ .finfo .btn2{grid-row:3;padding:0 18px;height:36px;font-size:12.5px}
 }
 /* lista do lazer */
 .side{position:absolute;right:clamp(14px,4vw,48px);bottom:96px;z-index:6;display:flex;flex-direction:column;gap:8px;max-width:330px}
@@ -112,29 +138,29 @@ html,body{margin:0;height:100%;background:#000;color:var(--ink);font-family:Inte
 <div id="app">
   <!-- abertura -->
   <section class="layer" id="L-intro">
-    <video id="v-intro" muted playsinline preload="auto" poster="assets/intro.jpg"><source src="assets/intro.mp4" type="video/mp4"></video>
+    <video id="v-intro" muted playsinline preload="auto" poster="assets/intro.jpg" data-k="intro"></video>
     <div class="shade"></div>
-    <div class="title" data-t="0.3-3.6"><div class="eyebrow">Beira-Mar Continental · Florianópolis</div><h1 class="disp">Vértice<br>Residence</h1></div>
-    <div class="title" data-t="4.2-7.2"><h2 class="disp">De frente para<br>a Hercílio Luz</h2><p>O mar da Baía Norte na janela e a ponte mais famosa do Brasil como vizinha.</p></div>
+    <div class="title" data-t="0.2-3.3"><div class="eyebrow">Beira-Mar Continental · Florianópolis</div><h1 class="disp">Vértice<br>Residence</h1></div>
+    <div class="title" data-t="3.9-7.6"><h2 class="disp">De frente para<br>a Hercílio Luz</h2><p>O mar da Baía Norte na janela e a ponte mais famosa do Brasil como vizinha.</p></div>
     <button class="pill glass skip" data-go="home">Pular abertura</button>
     <div class="intro-bar" id="ibar"></div>
   </section>
 
   <!-- vista geral (dia e noite) -->
   <section class="layer" id="L-home">
-    <video id="v-dia" muted playsinline loop preload="auto" poster="assets/home_dia.jpg"><source src="assets/home_dia.mp4" type="video/mp4"></video>
-    <video id="v-noite" muted playsinline loop preload="auto" poster="assets/home_noite.jpg" style="opacity:0;transition:opacity 1.2s"><source src="assets/home_noite.mp4" type="video/mp4"></video>
+    <video id="v-dia" muted playsinline loop preload="auto" poster="assets/dia.jpg" data-k="dia"></video>
+    <video id="v-noite" muted playsinline loop preload="none" poster="assets/noite.jpg" data-k="noite" style="opacity:0;transition:opacity 1.2s"></video>
     <div class="shade"></div>
     <div class="title on hometitle" style="bottom:96px"><div class="eyebrow">Explore o empreendimento</div><h2 class="disp" style="font-size:clamp(30px,4.2vw,58px)">Toque nos pontos<br>para entrar</h2></div>
-    <button class="hot" data-x="0.535" data-y="0.725" data-go="lazer"><span class="dot"></span><span class="lab">Lazer<small>Piscina, pergolado e gourmet</small></span></button>
-    <button class="hot" data-x="0.452" data-y="0.40" data-go="andar" data-tower="A"><span class="dot"></span><span class="lab">Torre A<small>Escolha seu andar</small></span></button>
-    <button class="hot" data-x="0.685" data-y="0.34" data-go="andar" data-tower="B"><span class="dot"></span><span class="lab">Torre B<small>Escolha seu andar</small></span></button>
-    <button class="hot" data-x="0.43" data-y="0.12" data-act="noite"><span class="dot"></span><span class="lab">Ponte Hercílio Luz<small>Ver acesa à noite</small></span></button>
+    <button class="hot" data-p="lazer" data-x="0.51" data-y="0.75" data-go="lazer"><span class="dot"></span><span class="lab">Lazer<small>Piscina, pergolado e gourmet</small></span></button>
+    <button class="hot flip" data-p="torreA" data-x="0.385" data-y="0.47" data-go="andar" data-tower="A"><span class="dot"></span><span class="lab">Torre A<small>Escolha seu andar</small></span></button>
+    <button class="hot" data-p="torreB" data-x="0.625" data-y="0.47" data-go="andar" data-tower="B"><span class="dot"></span><span class="lab">Torre B<small>Escolha seu andar</small></span></button>
+    <button class="hot" data-p="ponte" data-x="0.43" data-y="0.28" data-act="noite"><span class="dot"></span><span class="lab">Ponte Hercílio Luz<small>Ver acesa à noite</small></span></button>
   </section>
 
   <!-- escolha seu andar -->
   <section class="layer" id="L-andar">
-    <video id="v-andar" muted playsinline preload="auto" poster="assets/andar.jpg"><source src="assets/andar.mp4" type="video/mp4"></video>
+    <video id="v-andar" muted playsinline preload="none" poster="assets/andar.jpg" data-k="andar"></video>
     <div class="shade" style="background:linear-gradient(90deg,rgba(0,0,0,.55),rgba(0,0,0,0) 45%)"></div>
     <div class="units" id="units"></div>
     <div class="hint glass">Toque no apartamento destacado</div>
@@ -157,7 +183,7 @@ html,body{margin:0;height:100%;background:#000;color:var(--ink);font-family:Inte
 
   <!-- lazer -->
   <section class="layer" id="L-lazer">
-    <video id="v-lazer" muted playsinline loop preload="auto" poster="assets/lazer.jpg"><source src="assets/lazer.mp4" type="video/mp4"></video>
+    <video id="v-lazer" muted playsinline loop preload="none" poster="assets/lazer.jpg" data-k="lazer"></video>
     <div class="shade"></div>
     <div class="title on" style="bottom:auto;top:96px"><div class="eyebrow">Lazer entre as torres</div><h2 class="disp" style="font-size:clamp(32px,4.6vw,66px)">O fim de tarde<br>mais bonito da cidade</h2></div>
     <div class="side">
@@ -170,6 +196,7 @@ html,body{margin:0;height:100%;background:#000;color:var(--ink);font-family:Inte
 
 <header class="nav">
   <div class="logo" data-go="home" role="link" tabindex="0">VÉRTICE<small>RESIDENCE</small></div>
+  <button class="pill glass snd" id="snd" aria-label="Ligar som do mar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4z"/><path id="sndw" d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg><span class="hm" id="sndl">Som do mar</span></button>
   <a class="pill glass hm" href="maquete/">Maquete 3D</a>
   <a class="pill cta" id="wa" href="#" target="_blank" rel="noopener">Falar com corretor</a>
 </header>
@@ -179,6 +206,7 @@ html,body{margin:0;height:100%;background:#000;color:var(--ink);font-family:Inte
   <button class="dbtn" data-go="lazer">Lazer</button>
   <button class="dbtn" data-act="dianoite" id="dn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span>Noite</span></button>
 </nav>
+<div class="birds" id="birds" aria-hidden="true"></div>
 <div class="legal">Empreendimento fictício. Imagens ilustrativas geradas por IA.</div>
 <div class="loading" id="loading"><div style="text-align:center"><b>VÉRTICE RESIDENCE</b><br><button class="pill cta" id="start" style="margin:22px auto 0">Entrar</button></div></div>
 
@@ -190,14 +218,41 @@ var $ = function (s) { return document.querySelector(s); }, $$ = function (s) { 
 $('#wa').href = 'https://wa.me/' + WHATS + '?text=' + encodeURIComponent('Olá! Vi o Vértice Residence e quero saber mais.');
 var V = { intro: $('#v-intro'), dia: $('#v-dia'), noite: $('#v-noite'), andar: $('#v-andar'), lazer: $('#v-lazer') };
 var scene = null, night = false, tower = 'A', busy = false;
+/* celular ou economia de dados: versões 720p, mais leves */
+var MOB = matchMedia('(max-width: 760px)').matches || !!(navigator.connection && navigator.connection.saveData);
+function src(v) { if (!v.getAttribute('src')) { v.src = 'assets/' + v.dataset.k + (MOB ? '_m' : '') + '.mp4'; } return v; }
+function warm(v) { src(v); if (v.preload !== 'auto') { v.preload = 'auto'; v.load(); } }
+src(V.intro); src(V.dia);
+/* trajetória dos pontos clicáveis no vídeo (a câmera avança devagar; os pontos acompanham) */
+var TRK = {"dia": {"torreA": [[0.385, 0.47], [0.3845, 0.4708], [0.3838, 0.4715], [0.3831, 0.4723], [0.3825, 0.4732], [0.3817, 0.4742], [0.3808, 0.4752], [0.3799, 0.4764], [0.3791, 0.4774], [0.3782, 0.4788], [0.3773, 0.4802], [0.3762, 0.4816], [0.3751, 0.4829], [0.3739, 0.4845], [0.3727, 0.4861], [0.3715, 0.4877], [0.3703, 0.4892], [0.3691, 0.4908], [0.3678, 0.4925], [0.3664, 0.4943], [0.3651, 0.4961], [0.3636, 0.498], [0.3621, 0.5], [0.3605, 0.502], [0.3588, 0.5041], [0.357, 0.5064], [0.3554, 0.5086], [0.3535, 0.5111], [0.3515, 0.5136], [0.3493, 0.5161], [0.3472, 0.5189], [0.3451, 0.5215], [0.3447, 0.5221]], "torreB": [[0.625, 0.47], [0.6256, 0.4708], [0.6263, 0.4714], [0.627, 0.4721], [0.6278, 0.473], [0.6287, 0.4738], [0.6296, 0.4748], [0.6306, 0.4758], [0.6316, 0.4771], [0.6326, 0.4783], [0.6337, 0.4796], [0.6348, 0.4809], [0.6359, 0.4824], [0.637, 0.4838], [0.6382, 0.4852], [0.6394, 0.4866], [0.6408, 0.4882], [0.6422, 0.4899], [0.6435, 0.4916], [0.645, 0.4934], [0.6464, 0.4953], [0.6479, 0.4972], [0.6494, 0.4992], [0.6509, 0.5011], [0.6526, 0.5034], [0.6543, 0.5057], [0.656, 0.508], [0.6578, 0.5104], [0.6596, 0.513], [0.6614, 0.5156], [0.6632, 0.5181], [0.6652, 0.5211], [0.6656, 0.5214]], "lazer": [[0.51, 0.75], [0.51, 0.7517], [0.5101, 0.7536], [0.5103, 0.7559], [0.5104, 0.7581], [0.5106, 0.7604], [0.5107, 0.7631], [0.5108, 0.7658], [0.5109, 0.7688], [0.5111, 0.7718], [0.5112, 0.775], [0.5114, 0.7784], [0.5116, 0.7817], [0.5117, 0.7852], [0.5119, 0.7889], [0.512, 0.7924], [0.5121, 0.7958], [0.5123, 0.7997], [0.5126, 0.8037], [0.5128, 0.8076], [0.513, 0.8115], [0.5132, 0.8155], [0.5133, 0.8197], [0.5135, 0.8242], [0.5138, 0.8286], [0.514, 0.833], [0.5142, 0.8377], [0.5145, 0.8424], [0.5147, 0.8473], [0.5149, 0.8524], [0.5151, 0.8572], [0.5152, 0.8623], [0.5153, 0.8633]], "ponte": [[0.43, 0.28], [0.43, 0.28], [0.43, 0.28], [0.4301, 0.2801], [0.4301, 0.28], [0.4301, 0.28], [0.4302, 0.28], [0.4302, 0.2801], [0.4302, 0.2802], [0.4303, 0.2802], [0.4303, 0.2802], [0.4303, 0.2803], [0.4303, 0.2803], [0.4302, 0.2804], [0.4303, 0.2804], [0.4303, 0.2804], [0.4303, 0.2804], [0.4304, 0.2804], [0.4304, 0.2803], [0.4304, 0.2803], [0.4304, 0.2802], [0.4304, 0.2801], [0.4304, 0.2799], [0.4304, 0.28], [0.4304, 0.2798], [0.4305, 0.2797], [0.4305, 0.2796], [0.4305, 0.2796], [0.4305, 0.2796], [0.4305, 0.2795], [0.4305, 0.2795], [0.4306, 0.2794], [0.4306, 0.2794]]}, "noite": {"torreA": [[0.385, 0.47], [0.3848, 0.4698], [0.3846, 0.4697], [0.3842, 0.4698], [0.3838, 0.47], [0.3833, 0.4705], [0.3828, 0.471], [0.3822, 0.4714], [0.3817, 0.4719], [0.3811, 0.4726], [0.3807, 0.4733], [0.38, 0.4743], [0.3794, 0.4754], [0.3786, 0.4766], [0.3778, 0.4778], [0.3769, 0.4791], [0.3759, 0.4805], [0.375, 0.4821], [0.3738, 0.4838], [0.3727, 0.4855], [0.3716, 0.487], [0.3704, 0.4886], [0.3693, 0.4904], [0.3682, 0.4923], [0.367, 0.4943], [0.3659, 0.4964], [0.3647, 0.4985], [0.3634, 0.5006], [0.3621, 0.5027], [0.3607, 0.505], [0.3591, 0.5074], [0.3577, 0.51], [0.3575, 0.5104]], "torreB": [[0.625, 0.47], [0.6252, 0.4699], [0.6253, 0.4698], [0.6255, 0.4698], [0.6258, 0.4701], [0.6262, 0.4705], [0.6265, 0.471], [0.6269, 0.4715], [0.6274, 0.472], [0.628, 0.4727], [0.6287, 0.4733], [0.6295, 0.4744], [0.6303, 0.4754], [0.631, 0.4767], [0.6319, 0.4779], [0.6327, 0.4792], [0.6336, 0.4807], [0.6344, 0.4823], [0.6352, 0.4841], [0.6361, 0.4858], [0.637, 0.4876], [0.638, 0.4893], [0.6391, 0.4911], [0.6402, 0.4929], [0.6414, 0.4949], [0.6428, 0.4969], [0.6441, 0.499], [0.6455, 0.5011], [0.6469, 0.5032], [0.6483, 0.5056], [0.6497, 0.5081], [0.6514, 0.5105], [0.6516, 0.5109]], "lazer": [[0.51, 0.75], [0.51, 0.7502], [0.51, 0.7505], [0.51, 0.751], [0.5099, 0.7518], [0.5099, 0.7529], [0.5099, 0.7541], [0.5099, 0.7553], [0.5099, 0.7567], [0.51, 0.7584], [0.5101, 0.7601], [0.5102, 0.7621], [0.5103, 0.7644], [0.5104, 0.767], [0.5105, 0.7695], [0.5105, 0.7723], [0.5105, 0.7751], [0.5105, 0.7784], [0.5105, 0.7817], [0.5104, 0.7849], [0.5104, 0.7881], [0.5105, 0.7915], [0.5106, 0.7951], [0.5107, 0.7987], [0.5109, 0.8025], [0.511, 0.8063], [0.5112, 0.8102], [0.5115, 0.8141], [0.5117, 0.8182], [0.5118, 0.8227], [0.512, 0.8269], [0.5121, 0.8313], [0.5122, 0.8322]], "ponte": [[0.43, 0.28], [0.4299, 0.2798], [0.4299, 0.2795], [0.4298, 0.2792], [0.4297, 0.279], [0.4296, 0.2789], [0.4296, 0.2788], [0.4296, 0.2786], [0.4296, 0.2785], [0.4296, 0.2783], [0.4296, 0.2781], [0.4295, 0.2778], [0.4296, 0.2777], [0.4293, 0.2779], [0.4295, 0.2779], [0.4293, 0.2782], [0.4292, 0.2782], [0.4291, 0.2785], [0.429, 0.2787], [0.429, 0.2789], [0.4289, 0.2789], [0.4288, 0.2789], [0.4286, 0.279], [0.4286, 0.279], [0.4286, 0.2791], [0.4285, 0.2792], [0.4284, 0.2793], [0.4283, 0.2793], [0.4282, 0.2794], [0.428, 0.2796], [0.4279, 0.2796], [0.4279, 0.2799], [0.4278, 0.2799]]}};
+var TF = 7.833, TSTEP = 6 / 24;
+function trackAt(name, t) {
+  var a = TRK[name] || TRK.dia, tf = t % (2 * TF); if (tf > TF) tf = 2 * TF - tf;
+  var out = {};
+  for (var k in a) { var p = a[k], i = Math.min(p.length - 1.001, tf / TSTEP), i0 = Math.floor(i), f = i - i0, q0 = p[i0], q1 = p[Math.min(p.length - 1, i0 + 1)]; out[k] = [q0[0] + (q1[0] - q0[0]) * f, q0[1] + (q1[1] - q0[1]) * f]; }
+  return out;
+}
+var hotRaf = null;
+function hotLoop() {
+  hotRaf = null; if (scene !== 'home') return;
+  var v = night ? V.noite : V.dia, pos = trackAt(night ? 'noite' : 'dia', v.currentTime || 0);
+  $$('.hot').forEach(function (h) { var p = pos[h.dataset.p]; if (p) { h.dataset.x = p[0]; h.dataset.y = p[1]; } });
+  placeHots(); hotRaf = requestAnimationFrame(hotLoop);
+}
 function play(v) { var p = v.play(); if (p && p.catch) p.catch(function () { }); }
 
 /* posiciona os pontos clicáveis respeitando o recorte do vídeo (object-fit: cover) */
 function placeHots() {
-  var W = innerWidth, H = innerHeight, s = Math.max(W / 1280, H / 720), ox = (W - 1280 * s) / 2, oy = (H - 720 * s) / 2;
+  var W = innerWidth, H = innerHeight, s = Math.max(W / 1280, H / 720), ox = (W - 1280 * s) / 2, oy = (H - 720 * s) / 2, narrow = W < 760;
   $$('.hot').forEach(function (h) {
-    var x = ox + (+h.dataset.x) * 1280 * s, y = oy + (+h.dataset.y) * 720 * s;
-    var vis = x > 20 && x < W - 20 && y > 70 && y < H - 80; h.style.display = vis ? '' : 'none';
+    var x = ox + (+h.dataset.x) * 1280 * s, y = oy + (+h.dataset.y) * 720 * s, p = h.dataset.p;
+    /* no celular em pé as torres ficam nas bordas: o ponto encosta na borda da tela */
+    if (narrow && p === 'torreA') x = Math.max(x, 22);
+    if (narrow && p === 'torreB') x = Math.min(x, W - 22);
+    var lw = h._lw || (h._lw = h.querySelector('.lab').offsetWidth + 30);
+    var flip = p === 'torreA' ? !narrow : (p === 'torreB' && narrow) || x + lw > W - 8;
+    h.classList.toggle('flip', flip);
+    var vis = x > 8 && x < W - 8 && y > 70 && y < H - 80; h.style.display = vis ? '' : 'none';
     h.style.left = x + 'px'; h.style.top = y + 'px';
   });
 }
@@ -210,8 +265,8 @@ function go(next, from) {
   var ox = 50, oy = 50;
   if (from && from.getBoundingClientRect) { var r = from.getBoundingClientRect(); ox = (r.left + 9) / innerWidth * 100; oy = (r.top + r.height / 2) / innerHeight * 100; }
   var zoomIn = scene === 'home' && next !== 'home', zoomOut = next === 'home' && scene && scene !== 'intro';
-  if (next === 'andar') { V.andar.currentTime = timeFor(cur_floor); }
-  if (next === 'lazer') { V.lazer.currentTime = 0; play(V.lazer); }
+  if (next === 'andar') { warm(V.andar); try { V.andar.currentTime = timeFor(cur_floor); } catch (e) { } }
+  if (next === 'lazer') { warm(V.lazer); V.lazer.currentTime = 0; play(V.lazer); }
   if (next === 'home') { play(night ? V.noite : V.dia); }
   nx.style.transition = 'none'; nx.style.transform = zoomIn ? 'scale(1.18)' : zoomOut ? 'scale(.92)' : 'none'; nx.offsetWidth; nx.style.transition = '';
   if (cur) { cur.style.transformOrigin = ox + '% ' + oy + '%'; cur.style.transform = zoomIn ? 'scale(2.4)' : zoomOut ? 'scale(1.12)' : 'none'; cur.classList.remove('on'); }
@@ -221,25 +276,26 @@ function go(next, from) {
   setTimeout(function () { if (cur) { cur.style.transform = 'none'; } if (prev === 'lazer') V.lazer.pause(); if (prev === 'home' && next !== 'home') { V.dia.pause(); V.noite.pause(); } busy = false; }, 1250);
   $$('.dbtn[data-go]').forEach(function (b) { b.classList.toggle('on', b.dataset.go === next); });
   $('#dn').style.display = next === 'home' ? '' : 'none';
-  if (next === 'home') placeHots();
+  if (next === 'home') { placeHots(); if (!hotRaf) hotRaf = requestAnimationFrame(hotLoop); }
 }
 
 /* dia e noite na vista geral */
 function setNight(n) {
-  night = n; $('#dn span').textContent = n ? 'Dia' : 'Noite';
-  if (n) { V.noite.currentTime = V.dia.currentTime % (V.noite.duration || 12); play(V.noite); V.noite.style.opacity = 1; }
+  night = n; document.body.classList.toggle('night', n); $('#dn span').textContent = n ? 'Dia' : 'Noite';
+  if (n) { warm(V.noite); try { V.noite.currentTime = V.dia.currentTime || 0; } catch (e) { } play(V.noite); V.noite.style.opacity = 1; }
   else { V.noite.style.opacity = 0; play(V.dia); setTimeout(function () { if (!night) V.noite.pause(); }, 1300); }
   if (scene !== 'home') go('home');
 }
 
 /* escolha seu andar: o vídeo sobe pela fachada (cada quadro é uma imagem completa, por isso a busca é lisa) */
 /* posição de cada apartamento no quadro do vídeo em que o andar fica em foco (frações da imagem 1280x720) */
-var BOX = {"1": [[0.3953, 0.6278, 0.6852, 0.7653], [0.8053, 0.6278, 1.0, 0.7653]], "2": [[0.4005, 0.3806, 0.6781, 0.5125], [0.7943, 0.3806, 1.0, 0.5125]], "3": [[0.4075, 0.4972, 0.682, 0.6278], [0.7973, 0.4972, 1.0, 0.6278]], "4": [[0.4113, 0.4431, 0.6828, 0.5722], [0.7971, 0.4431, 1.0, 0.5722]], "5": [[0.4075, 0.3861, 0.682, 0.5167], [0.7973, 0.3861, 1.0, 0.5167]], "6": [[0.4112, 0.4819, 0.6797, 0.6097], [0.793, 0.4819, 1.0, 0.6097]], "7": [[0.4166, 0.4153, 0.6789, 0.5403], [0.7902, 0.4153, 1.0, 0.5403]], "8": [[0.4219, 0.5083, 0.6781, 0.6306], [0.7875, 0.5083, 1.0, 0.6306]], "9": [[0.4241, 0.4569, 0.6773, 0.5778], [0.7857, 0.4569, 1.0, 0.5778]], "10": [[0.4333, 0.4111, 0.6773, 0.5278], [0.7828, 0.4111, 1.0, 0.5278]], "11": [[0.4371, 0.5194, 0.675, 0.6333], [0.7785, 0.5194, 1.0, 0.6333]], "12": [[0.4432, 0.4722, 0.6781, 0.5847], [0.7807, 0.4722, 1.0, 0.5847]], "13": [[0.4432, 0.5764, 0.6781, 0.6889], [0.7807, 0.5764, 1.0, 0.6889]], "14": [[0.4471, 0.2375, 0.6789, 0.3486], [0.7805, 0.2375, 1.0, 0.3486]], "15": [[0.444, 0.1917, 0.6789, 0.3042], [0.7814, 0.1917, 1.0, 0.3042]]};
+var FL = {"1": {"t": 0.001, "b": [[0.1219, 0.4256, 0.4758, 0.5722], [0.5281, 0.4256, 0.9148, 0.5722]]}, "2": {"t": 0.474, "b": [[0.1242, 0.4464, 0.4781, 0.5931], [0.5305, 0.4464, 0.9172, 0.5931]]}, "3": {"t": 0.946, "b": [[0.1242, 0.4978, 0.4781, 0.6444], [0.5305, 0.4978, 0.9172, 0.6444]]}, "4": {"t": 1.419, "b": [[0.1281, 0.3849, 0.482, 0.5306], [0.5344, 0.3849, 0.9211, 0.5306]]}, "5": {"t": 1.892, "b": [[0.1281, 0.4682, 0.482, 0.6139], [0.5344, 0.4682, 0.9211, 0.6139]]}, "6": {"t": 2.365, "b": [[0.1281, 0.3637, 0.482, 0.5083], [0.5344, 0.3637, 0.9211, 0.5083]]}, "7": {"t": 2.837, "b": [[0.1305, 0.4679, 0.4844, 0.6125], [0.5367, 0.4679, 0.9234, 0.6125]]}, "8": {"t": 3.31, "b": [[0.1281, 0.3846, 0.482, 0.5292], [0.5344, 0.3846, 0.9211, 0.5292]]}, "9": {"t": 3.783, "b": [[0.1305, 0.5017, 0.4844, 0.6458], [0.5367, 0.5017, 0.9234, 0.6458]]}, "10": {"t": 4.256, "b": [[0.1305, 0.4398, 0.4844, 0.5833], [0.5367, 0.4398, 0.9234, 0.5833]]}, "11": {"t": 4.728, "b": [[0.1305, 0.3648, 0.4844, 0.5083], [0.5367, 0.3648, 0.9234, 0.5083]]}, "12": {"t": 5.201, "b": [[0.1344, 0.4773, 0.4883, 0.6208], [0.5406, 0.4773, 0.9273, 0.6208]]}, "13": {"t": 6.2, "b": [[0.1453, 0.7259, 0.4992, 0.8694], [0.5516, 0.7259, 0.9383, 0.8694]]}, "14": {"t": 6.2, "b": [[0.1453, 0.5384, 0.4992, 0.6819], [0.5516, 0.5384, 0.9383, 0.6819]]}, "15": {"t": 6.2, "b": [[0.1453, 0.3453, 0.4992, 0.4889], [0.5516, 0.3453, 0.9383, 0.4889]]}};
+var BOX = {}; for (var k in FL) BOX[k] = FL[k].b;
 var PLAN = { '01': { t: '3 suítes · 128 m²', p: 1180000 }, '02': { t: '2 suítes · 94 m²', p: 890000 } };
 function sold(tw, f, u) { return ((f * 7 + (u === '01' ? 3 : 6) + (tw === 'B' ? 5 : 0)) % 4) === 0; }
 function code(tw, f, u) { return tw + '-' + f + u; }
 var cur_floor = 8, cur_unit = '01', seekTarget = null, rafSeek = null;
-function timeFor(f) { return 0.15 + (f - 1) / 14 * 6.4; }
+function timeFor(f) { return FL[f].t; }
 function buildTicks() {
   var t = $('#ticks'); t.innerHTML = '';
   for (var f = 15; f >= 1; f--) { var any = !sold(tower, f, '01') || !sold(tower, f, '02'); var b = document.createElement('button'); b.className = 'tk' + (any ? ' av' : '') + (f === cur_floor ? ' on' : ''); b.textContent = f; b.dataset.f = f; b.setAttribute('aria-label', f + 'º andar'); t.appendChild(b); }
@@ -248,7 +304,7 @@ function placeUnits() {
   var box = $('#units'); box.innerHTML = '';
   var W = innerWidth, H = innerHeight, s = Math.max(W / 1280, H / 720), ox = (W - 1280 * s) / 2, oy = (H - 720 * s) / 2;
   ['01', '02'].forEach(function (u, i) {
-    var r = BOX[cur_floor][i], x0 = ox + r[0] * 1280 * s, y0 = oy + r[1] * 720 * s, x1 = Math.min(W - 4, ox + r[2] * 1280 * s), y1 = oy + r[3] * 720 * s;
+    var r = BOX[cur_floor][i], x0 = Math.max(4, ox + r[0] * 1280 * s), y0 = oy + r[1] * 720 * s, x1 = Math.min(W - 4, ox + r[2] * 1280 * s), y1 = oy + r[3] * 720 * s;
     if (x1 - x0 < 30) return;
     var sd = sold(tower, cur_floor, u), b = document.createElement('button');
     b.className = 'ubox' + (sd ? ' sold' : '') + (u === cur_unit && !sd ? ' sel' : ''); b.dataset.u = u;
@@ -312,13 +368,72 @@ function begin() {
   $('#loading').classList.add('done');
   scene = 'intro'; $('#L-intro').classList.add('on'); play(V.intro);
   /* deixa os outros vídeos prontos para tocar sem espera */
-  [V.dia, V.noite, V.lazer, V.andar].forEach(function (v) { var p = v.play(); if (p && p.then) p.then(function () { v.pause(); v.currentTime = 0; }).catch(function () { }); });
+  var pd = V.dia.play(); if (pd && pd.then) pd.then(function () { V.dia.pause(); V.dia.currentTime = 0; }).catch(function () { });
+  /* os outros vídeos carregam depois, um de cada vez (no celular, só quando a cena é aberta) */
+  if (!MOB) setTimeout(function () { warm(V.noite); setTimeout(function () { warm(V.andar); setTimeout(function () { warm(V.lazer); }, 2500); }, 2500); }, 3000);
+  else setTimeout(function () { warm(V.andar); }, 6000);
   $('#dn').style.display = 'none';
 }
 $('#start').addEventListener('click', begin);
 buildTicks(); placeHots();
 /* entra sozinho se o navegador permitir vídeo automático */
 var tryAuto = V.intro.play(); if (tryAuto && tryAuto.then) tryAuto.then(function () { V.intro.pause(); V.intro.currentTime = 0; begin(); }).catch(function () { });
+
+/* pássaros cruzando a paisagem (só de dia) */
+function bird() {
+  if (!night && scene && scene !== 'andar' && !document.hidden) {
+    var n = 1 + Math.floor(Math.random() * 3), y0 = 8 + Math.random() * 26, dur = 14 + Math.random() * 10;
+    for (var i = 0; i < n; i++) {
+      var b = document.createElement('div'); b.className = 'bird';
+      var sc = .55 + Math.random() * .6;
+      b.style.top = (y0 + i * 2.2 + Math.random() * 2) + 'vh'; b.style.width = 26 * sc + 'px'; b.style.height = 12 * sc + 'px';
+      b.style.setProperty('--dy', (Math.random() * 12 - 6) + 'vh');
+      b.style.animationDuration = (dur + i * .8) + 's'; b.style.animationDelay = (i * .5) + 's';
+      b.innerHTML = '<svg viewBox="0 0 26 10"><path d="M1 6 Q7 0 13 6 Q19 0 25 6" style="animation-delay:' + (Math.random() * .4).toFixed(2) + 's"/></svg>';
+      $('#birds').appendChild(b); (function (el) { setTimeout(function () { el.remove(); }, (dur + 4) * 1000); })(b);
+    }
+  }
+  setTimeout(bird, 5000 + Math.random() * 7000);
+}
+setTimeout(bird, 2500);
+
+/* som de praia: áudio ambiente gravado junto com os vídeos (ondas, gaivotas e brisa); se falhar, ondas geradas no navegador */
+var AC = null, master = null, soundOn = false;
+function startSea() {
+  AC = new (window.AudioContext || window.webkitAudioContext)();
+  master = AC.createGain(); master.gain.value = 0; master.connect(AC.destination);
+  fetch('assets/mar.m4a').then(function (r) { if (!r.ok) throw 0; return r.arrayBuffer(); })
+    .then(function (ab) { return new Promise(function (ok, no) { AC.decodeAudioData(ab, ok, no); }); })
+    .then(function (buf) { var s = AC.createBufferSource(); s.buffer = buf; s.loop = true; s.connect(master); s.start(); })
+    .catch(synthSea);
+}
+function synthSea() {
+  var len = AC.sampleRate * 4, buf = AC.createBuffer(2, len, AC.sampleRate);
+  for (var c = 0; c < 2; c++) { var d = buf.getChannelData(c), last = 0; for (var i = 0; i < len; i++) { var w = Math.random() * 2 - 1; last = (last + 0.02 * w) / 1.02; d[i] = last * 3.2; } }
+  function layer(freq, q, period, depth, base, pan) {
+    var src = AC.createBufferSource(); src.buffer = buf; src.loop = true; src.playbackRate.value = .9 + Math.random() * .2;
+    var f = AC.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = freq; f.Q.value = q;
+    var g = AC.createGain(); g.gain.value = base;
+    var lfo = AC.createOscillator(); lfo.frequency.value = 1 / period; var lg = AC.createGain(); lg.gain.value = depth; lfo.connect(lg); lg.connect(g.gain);
+    var p = AC.createStereoPanner ? AC.createStereoPanner() : null;
+    src.connect(f); f.connect(g); if (p) { p.pan.value = pan; g.connect(p); p.connect(master); } else g.connect(master);
+    src.start(); lfo.start(AC.currentTime + Math.random() * period);
+  }
+  layer(420, .7, 7.5, .55, .6, -.3);   /* ondas longas */
+  layer(900, .5, 5.3, .35, .35, .35);  /* espuma */
+  layer(160, .9, 11, .4, .7, 0);       /* fundo grave */
+}
+function setSound(on) {
+  soundOn = on;
+  if (on && !AC) startSea();
+  if (AC) { if (on && AC.state === 'suspended') AC.resume(); master.gain.cancelScheduledValues(AC.currentTime); master.gain.setTargetAtTime(on ? .5 : 0, AC.currentTime, .6); }
+  $('#sndw').style.display = on ? '' : 'none'; $('#sndl').textContent = on ? 'Som do mar' : 'Sem som';
+  $('#snd').setAttribute('aria-label', on ? 'Desligar som do mar' : 'Ligar som do mar'); $('#snd').classList.toggle('on', on);
+}
+$('#snd').addEventListener('click', function () { setSound(!soundOn); });
+$('#start').addEventListener('click', function () { setSound(true); });
+document.addEventListener('pointerdown', function first(e) { document.removeEventListener('pointerdown', first, true); if (!AC && !e.target.closest('#snd')) setSound(true); }, true);
+$('#sndw').style.display = 'none'; $('#sndl').textContent = 'Som do mar';
 })();
 </script>
 </body>
